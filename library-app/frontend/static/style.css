@@ -15,27 +15,8 @@ body {
 }
 
 .book {
-    background: #fff;
-    padding: 20px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.author {
-    color: #666;
-    font-style: italic;
-    margin: 5px 0;
-}
-
-.meta {
-    color: #888;
-    font-size: 0.9em;
-    margin: 5px 0;
-}
-
-.description {
-    color: #444;
-    line-height: 1.5;
-    margin-top: 10px;
+    background: #f5f5f5;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
 }
