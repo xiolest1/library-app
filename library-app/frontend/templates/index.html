@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NYPL Library Search</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>NYPL Library Search</h1>
+        <input type="text" id="searchInput" placeholder="Search books...">
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const resultsDiv = document.getElementById('results');
+
+        searchInput.addEventListener('input', async (e) => {
+            const query = e.target.value;
+            if (query.length > 0) {
+                const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
+                const books = await response.json();
+                displayResults(books);
+            }
+        });
+
+        function displayResults(books) {
+            resultsDiv.innerHTML = books.map(book => `
+                <div class="book">
+                    <h3>${book.title}</h3>
+                    <p>Author: ${book.author}</p>
+                    ${book.year ? `<p>Year: ${book.year}</p>` : ''}
+                    ${book.description ? `<p class="description">${book.description}</p>` : '<p class="description">No description available</p>' }
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

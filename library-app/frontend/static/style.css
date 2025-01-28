@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.book {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.author {
+    color: #666;
+    font-style: italic;
+    margin: 5px 0;
+}
+
+.meta {
+    color: #888;
+    font-size: 0.9em;
+    margin: 5px 0;
+}
+
+.description {
+    color: #444;
+    line-height: 1.5;
+    margin-top: 10px;
+}
