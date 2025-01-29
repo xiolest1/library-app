@@ -2,30 +2,63 @@
 
 README with pictures: https://docs.google.com/document/d/1TComLTDT7_nlRTwX1d4b0DieoFSk7Xvfv8QtmADhe-k/edit?usp=sharing
 
----Softwares & Tools to Download---
+<h1>Softwares & Tools to Download</h1>
 
-1. Docker
-Link: https://www.docker.com/products/docker-desktop/
+- Docker (Both Windows and MacOS)
+  - https://www.docker.com/products/docker-desktop/
+  
+- Git: (Windows only link)
+  - https://git-scm.com/downloads
+  
+- The project github
+  - https://github.com/xiolest1/library-app/tree/main
 
-2. Git
-Link: https://git-scm.com/downloads
+<h2>MacOS Setup Steps</h2>
 
+- Open terminal, check if Git is downloaded with the command:
+```git -version```
 
----Set-up Steps---
-1. Copy the repository link
-2. Open up git bash, go into your desired directory
-3. Clone the repository with the command below (No quotation marks)
+- If its not, download Git here
 
-"git clone https://github.com/xiolest1/library-app.git"
+```/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"```
 
-4. Open up Docker in the background (login with your github account)
-5. Go into the library-app folder in the git terminal
-(Note, the actual app is inside the library-app folder which also has the same name (so the library-app folder inside the library-app folder, sorry for this i wasn’t paying attention to names))
+ **Move onto step 1 of windows setup to finish the rest of the setup**
 
-6. To build up the application, type in the command
-7. The site is ran on the url, localhost:5000
+<h2>Windows Setup Steps</h2> 
 
-"docker-compose up -build"
+**Step 1**
 
+- Open up git’s terminal
+    - (For Windows: type in git bash in search bar in the taskbar)
+    - (For MacOS: your terminal you used previously is fine)
 
+- Change directory to your desktop (you can save it anywhere you like, desktop is just an example)
 
+```cd  onedrive/desktop```  
+
+- Clone the repository with the command:
+  
+```git clone https://github.com/xiolest1/library-app.git```
+
+---
+
+**Step 2**
+
+- Open up Docker, leave it running in the background
+    -  (login with your github account or email associated with github)
+  
+---
+**Step 3:**
+- In terminal, change directory into the library-app folder
+
+    - You can view files with the command: ```ls```
+  
+    - Here you should see the backend folder, frontend folder and docker-compose.yaml file
+  
+        - the docker-compose.yaml file is how you get the web-app up and running w/ database
+      
+- To build the application, and have it running, type in the command:
+```docker-compose up --build```
+
+- Open up your browser and type in “localhost:5001” 
+---
