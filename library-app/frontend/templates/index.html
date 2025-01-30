@@ -1,29 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>NYPL Library Search</title>
+    <title>Open Library Search</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="container">
-        <h1>NYPL Library Search</h1>
+        <h1>Open Library Search</h1>
+
+        <!-- search input field & results-->
         <input type="text" id="searchInput" placeholder="Search books...">
         <div id="results"></div>
     </div>
-
+    
+    <!-- gets the search input and results container -->
     <script>
         const searchInput = document.getElementById('searchInput');
         const resultsDiv = document.getElementById('results');
 
+       // real-time search function
         searchInput.addEventListener('input', async (e) => {
-            const query = e.target.value;
+            const query = e.target.value.trim();
+
+            // Send request with atleast 1 character
             if (query.length > 0) {
+                // Fetches results from API
                 const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
                 const books = await response.json();
                 displayResults(books);
+            } else {
+
+                // clear when query empty
+                resultsDiv.innerHTML = ''; 
             }
         });
-
+        
         function displayResults(books) {
             resultsDiv.innerHTML = books.map(book => `
                 <div class="book">
@@ -31,7 +42,7 @@
                     <p>Author: ${book.author}</p>
                     ${book.year ? `<p>Year: ${book.year}</p>` : ''}
                 </div>
-            `).join('');
+            `).join(''); // converts arrays to strings
         }
     </script>
 </body>
