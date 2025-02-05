@@ -36,14 +36,25 @@
         });
         
         function displayResults(books) {
-            resultsDiv.innerHTML = books.map(book => `
-                <div class="book">
+    resultsDiv.className = 'results-grid';
+    resultsDiv.innerHTML = books.map(book => {
+        const coverUrl = book.cover_i
+            ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg` // get cover from openlibrary (needs work)
+            : 'https://via.placeholder.com/128x192?text=No+Cover'; // in case there's no image
+            // the <img src ... > is supposed to get the book cover
+
+        return `
+            <div class="book">
+                <img src="${coverUrl}" alt="Book Cover" class="book-cover">   
+                <div>
                     <h3>${book.title}</h3>
                     <p>Author: ${book.author}</p>
                     ${book.year ? `<p>Year: ${book.year}</p>` : ''}
                 </div>
-            `).join(''); // converts arrays to strings
-        }
+            </div>
+        `;
+    }).join('');
+}
     </script>
 </body>
 </html>
