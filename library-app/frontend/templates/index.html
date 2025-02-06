@@ -8,53 +8,60 @@
     <div class="container">
         <h1>Open Library Search</h1>
 
-        <!-- search input field & results-->
-        <input type="text" id="searchInput" placeholder="Search books...">
+        <!-- Dropdown menu -->
+        <div class="search-controls">
+            <select id="criteriaSelect">
+                <option value="title">Title</option>
+                <option value="author">Author</option>
+                <option value="subject">Subject</option>
+                <option value="isbn">ISBN</option>
+            </select>
+            <input type="text" id="searchInput" placeholder="Search books...">
+        </div>
         <div id="results"></div>
     </div>
     
-    <!-- gets the search input and results container -->
     <script>
+        const criteriaSelect = document.getElementById('criteriaSelect');
         const searchInput = document.getElementById('searchInput');
         const resultsDiv = document.getElementById('results');
 
-       // real-time search function
+        // Real-time search function
         searchInput.addEventListener('input', async (e) => {
             const query = e.target.value.trim();
+            const criteria = criteriaSelect.value;
 
-            // Send request with atleast 1 character
             if (query.length > 0) {
-                // Fetches results from API
-                const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
+                // Include both query and criteria in the request
+                const response = await fetch(`/search?q=${encodeURIComponent(query)}&criteria=${encodeURIComponent(criteria)}`);
                 const books = await response.json();
                 displayResults(books);
             } else {
-
-                // clear when query empty
+                // Clear results when query is empty
                 resultsDiv.innerHTML = ''; 
             }
         });
         
         function displayResults(books) {
-    resultsDiv.className = 'results-grid';
-    resultsDiv.innerHTML = books.map(book => {
-        const coverUrl = book.cover_i
-            ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg` // get cover from openlibrary (needs work)
-            : 'https://via.placeholder.com/128x192?text=No+Cover'; // in case there's no image
-            // the <img src ... > is supposed to get the book cover
+            resultsDiv.className = 'results-grid';
+            resultsDiv.innerHTML = books.map(book => {
+                // Use cover_i if available, otherwise a placeholder image
+                const coverUrl = book.cover_i
+                    ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
+                    : 'https://via.placeholder.com/128x192?text=No+Cover';
 
-        return `
-            <div class="book">
-                <img src="${coverUrl}" alt="Book Cover" class="book-cover">   
-                <div>
-                    <h3>${book.title}</h3>
-                    <p>Author: ${book.author}</p>
-                    ${book.year ? `<p>Year: ${book.year}</p>` : ''}
-                </div>
-            </div>
-        `;
-    }).join('');
-}
+                return `
+                    <div class="book">
+                        <img src="${coverUrl}" alt="Book Cover" class="book-cover">   
+                        <div>
+                            <h3>${book.title}</h3>
+                            <p>Author: ${book.author}</p>
+                            ${book.year ? `<p>Year: ${book.year}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
     </script>
 </body>
 </html>
