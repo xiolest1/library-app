@@ -1,17 +1,65 @@
+/* Navigation Bar Styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    padding: 10px 20px;
+    color: #fff;
+}
+
+.navbar a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 15px;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    align-items: center;
+}
+
+/* Search Controls in Navigation */
+.search-controls {
+    display: flex;
+    align-items: center;
+}
+
+.search-controls select {
+    padding: 10px;
+    margin-right: 10px;
+}
+
+.search-controls input {
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Container for Main Content */
+.container {
+    padding: 20px;
+}
+
+/* Results Grid and Book Styles */
 .results-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 15px;
+    margin-top: 20px;
 }
 
 .book {
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
     background: #f9f9f9;
     padding: 10px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    flex-direction: column;
 }
 
 .book img {
@@ -22,19 +70,12 @@
     margin-bottom: 10px;
 }
 
-#searchInput {
-    width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
+/* Form Styles */
+form div {
+    margin-bottom: 10px;
 }
 
-.search-controls {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.search-controls select {
-    padding: 10px;
-    margin-right: 10px;
+form label {
+    display: block;
+    margin-bottom: 5px;
 }

@@ -12,25 +12,22 @@ def index():
 
 @app.route('/search')
 def search():
-    # Retrieve the search query from the request parameters
     query = request.args.get('q', '')
     if not query:
         return jsonify({"error": "Search query is required"}), 400 
     
-    # Get the chosen search criteria (default to 'title' if not provided or invalid)
+    # Retrieve the selected search criteria; default to 'title'
     criteria = request.args.get('criteria', 'title').lower()
     allowed_criteria = ['title', 'author', 'subject', 'isbn']
     if criteria not in allowed_criteria:
         criteria = 'title'
     
-    # Build the API request parameters using the selected criteria as the key
     params = {
         criteria: query,
         "fields": "title,author_name,first_publish_year,cover_i",
         "limit": 20
     }
     
-    # Make the API request to Open Library
     response = requests.get(OPEN_LIBRARY_API_URL, params=params)
     if response.status_code == 200:
         results = process_api_response(response.json())
@@ -48,6 +45,18 @@ def process_api_response(data):
             "cover_i": book.get("cover_i")
         })
     return processed
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+@app.route('/register')
+def register():
+    return render_template('register.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

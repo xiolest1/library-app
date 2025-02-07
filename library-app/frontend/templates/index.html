@@ -1,26 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Open Library Search</title>
+    <title>Library Search App</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Open Library Search</h1>
 
-        <!-- Dropdown menu -->
-        <div class="search-controls">
-            <select id="criteriaSelect">
-                <option value="title">Title</option>
-                <option value="author">Author</option>
-                <option value="subject">Subject</option>
-                <option value="isbn">ISBN</option>
-            </select>
-            <input type="text" id="searchInput" placeholder="Search books...">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="search-controls">
+                <select id="criteriaSelect">
+                    <option value="title">Title</option>
+                    <option value="author">Author</option>
+                    <option value="subject">Subject</option>
+                    <option value="isbn">ISBN</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Search books...">
+            </div>
         </div>
+        <div class="nav-right">
+            <a href="/">Home</a>
+            <a href="/login">Register &amp; Login</a>
+            <a href="/about">About</a>
+        </div>
+    </nav>
+    <!-- Main Content -->
+    <div class="container">
+        <h1>Library Search App</h1>
         <div id="results"></div>
     </div>
-    
+
     <script>
         const criteriaSelect = document.getElementById('criteriaSelect');
         const searchInput = document.getElementById('searchInput');
@@ -32,12 +42,11 @@
             const criteria = criteriaSelect.value;
 
             if (query.length > 0) {
-                // Include both query and criteria in the request
+                // Send both query and criteria to the backend
                 const response = await fetch(`/search?q=${encodeURIComponent(query)}&criteria=${encodeURIComponent(criteria)}`);
                 const books = await response.json();
                 displayResults(books);
             } else {
-                // Clear results when query is empty
                 resultsDiv.innerHTML = ''; 
             }
         });
@@ -45,7 +54,6 @@
         function displayResults(books) {
             resultsDiv.className = 'results-grid';
             resultsDiv.innerHTML = books.map(book => {
-                // Use cover_i if available, otherwise a placeholder image
                 const coverUrl = book.cover_i
                     ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
                     : 'https://via.placeholder.com/128x192?text=No+Cover';
