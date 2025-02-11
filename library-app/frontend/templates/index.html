@@ -1,50 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Library Search</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYPL Library Search</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-left">
-            <h1>Library Search</h1>
-        </div>
-        <div class="nav-center">
-            <select id="criteriaSelect">
-                <option value="title">Title</option>
-                <option value="author">Author</option>
-                <option value="subject">Subject</option>
-                <option value="isbn">ISBN</option>
-            </select>
-            <input type="text" id="searchInput" placeholder="Search books...">
-        </div>
-        <div class="nav-right">
-            <a href="/">Home</a>
-            {% if session.get('user') %}
-                <a href="/dashboard">Dashboard</a>
-                <a href="/logout">Logout</a>
-            {% else %}
-                <a href="/register">Register</a>
-                <a href="/login">Login</a>
-            {% endif %}
-            <a href="/about">About</a>
-        </div>
-    </nav>
+    <div class="banner">
+        <img src="../static/logo.png" alt="Library Logo" class="logo">
+        <div class="banner-item">Home</div>
+        <div class="banner-item">About</div>
+        <div class="banner-item">Contact</div>
+    </div>
+
+    <div class="image-container">
+        <img src="../static/img0.png" alt="Library Image" class="library-image">
+        <div class="overlay-text">Discover. Learn. Explore.</div>
+    </div>
 
     <div class="container">
+        <h1>NYPL Library Search</h1>
+        <input type="text" id="searchInput" placeholder="Search books...">
         <div id="results"></div>
     </div>
-    
+
     <script>
-        const criteriaSelect = document.getElementById('criteriaSelect');
         const searchInput = document.getElementById('searchInput');
         const resultsDiv = document.getElementById('results');
 
         searchInput.addEventListener('input', async (e) => {
-            const query = e.target.value.trim();
-            const criteria = criteriaSelect.value;
+            const query = e.target.value;
             if (query.length > 0) {
-                const response = await fetch(`/search?q=${encodeURIComponent(query)}&criteria=${encodeURIComponent(criteria)}`);
+                const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
                 const books = await response.json();
                 displayResults(books);
             } else {
@@ -53,22 +42,13 @@
         });
 
         function displayResults(books) {
-            resultsDiv.className = 'results-grid';
-            resultsDiv.innerHTML = books.map(book => {
-                const coverUrl = book.cover_i
-                    ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
-                    : 'https://via.placeholder.com/128x192?text=No+Cover';
-                return `
-                    <div class="book">
-                        <img src="${coverUrl}" alt="Book Cover" class="book-cover">
-                        <div>
-                            <h3>${book.title}</h3>
-                            <p>Author: ${book.author}</p>
-                            ${book.year ? `<p>Year: ${book.year}</p>` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            resultsDiv.innerHTML = books.map(book => `
+                <div class="book">
+                    <h3>${book.title}</h3>
+                    <p>Author: ${book.author}</p>
+                    ${book.year ? `<p>Year: ${book.year}</p>` : ''}
+                </div>
+            `).join('');
         }
     </script>
 </body>
