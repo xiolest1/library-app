@@ -1,104 +1,153 @@
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #333;
-    padding: 10px 20px;
-    color: #fff;
-}
-
-.nav-left,
-.nav-center,
-.nav-right {
-    display: flex;
-    align-items: center;
-}
-
-.nav-left h1 {
+* {
     margin: 0;
-    font-size: 1.5em;
-}
-
-.nav-center {
-    flex: 1;
-    justify-content: center;
-}
-
-.nav-right a {
-    color: #fff;
-    text-decoration: none;
-    margin-left: 15px;
-}
-
-.nav-right a:hover {
-    text-decoration: underline;
-}
-
-#criteriaSelect {
-    padding: 10px;
-    margin-right: 10px;
-}
-
-#searchInput {
-    padding: 10px;
+    padding: 0;
     box-sizing: border-box;
 }
 
-.container {
-    padding: 20px;
+body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+    color: #333;
+    margin: 0;
+    padding: 0; 
 }
 
-.results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
+.banner {
+    width: 100%;
+    background: linear-gradient(135deg, #0077b6, #023e8a);
+    color: white;
+    display: flex;
+    justify-content: space-around;
+    padding: 15px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    align-items: center;
+    z-index: 10; 
+}
+
+.logo {
+    position: absolute;
+    top: 0;
+    left: 20px;
+    width: 50px; 
+    height: auto;
+    z-index: 10;
+}
+
+.image-container {
+    position: relative;
+    width: 100%;
+    height: 50vh; 
+    overflow: hidden;
+    margin-top: 0;
+}
+
+.library-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+}
+
+
+
+.logo {
+    position: absolute;
+    top: 0px;
+    left: 20px;
+    width: 50px; 
+    height: auto;
+    z-index: 10;
+}
+
+.banner-item {
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.banner-item:hover {
+    transform: scale(1.1);
+    color: #ffdd57;
+}
+
+.container {
+    text-align: center;
+    margin-top: 100px;
+    padding: 20px;
+    width: 80%;
+    max-width: 600px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #0077b6;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #0077b6;
+    border-radius: 8px;
+    outline: none;
+    transition: 0.3s;
+}
+
+#searchInput:focus {
+    border-color: #ffdd57;
+    box-shadow: 0 0 10px rgba(255, 221, 87, 0.5);
+}
+
+#results {
     margin-top: 20px;
 }
 
 .book {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    background: #f9f9f9;
-    padding: 10px;
-    border-radius: 5px;
+    background: #f1f3f5;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px 0;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
 }
 
-.book img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    border-radius: 5px;
-    margin-bottom: 10px;
+.book:hover {
+    transform: scale(1.02);
+    background: #e9ecef;
 }
 
-form div {
-    margin-bottom: 10px;
+.book h3 {
+    color: #0077b6;
 }
 
-form label {
-    display: block;
-    margin-bottom: 5px;
+
+
+.overlay-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.6); 
+    color: white;
+    padding: 20px 40px;
+    font-size: 50px; 
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 5px; 
+    border-radius: 8px;
+    text-shadow: 4px 4px 12px rgba(0, 0, 0, 0.7);
 }
 
-/* Flash Messages */
-.flashes {
-    list-style: none;
-    padding: 0;
-}
-
-.flashes li {
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-.flashes li.success {
-    background-color: #c8e6c9;
-    color: #256029;
-}
-
-.flashes li.error {
-    background-color: #ffcdd2;
-    color: #c63737;
 }
