@@ -1,38 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Register - Open Library Search</title>
+    <title>Register - Library Search</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-left">
-            <a href="/">Open Library Search</a>
+            <h1>Library Search</h1>
         </div>
         <div class="nav-right">
             <a href="/">Home</a>
-            <a href="/login">Register &amp; Login</a>
+            {% if session.get('user') %}
+                <a href="/dashboard">Dashboard</a>
+                <a href="/logout">Logout</a>
+            {% else %}
+                <a href="/register">Register</a>
+                <a href="/login">Login</a>
+            {% endif %}
             <a href="/about">About</a>
         </div>
     </nav>
 
-    <!-- Registration Content -->
     <div class="container">
         <h1>Register</h1>
-        <p>This page is a placeholder for user registration functionality.</p>
-        <form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flashes">
+              {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        <form method="POST" action="/register">
             <div>
                 <label for="username">Username:</label>
-                <input type="text" id="username" name="username">
+                <input type="text" id="username" name="username" required>
             </div>
             <div>
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email">
+                <input type="email" id="email" name="email" required>
             </div>
             <div>
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password">
+                <input type="password" id="password" name="password" required>
             </div>
             <button type="submit">Register</button>
         </form>

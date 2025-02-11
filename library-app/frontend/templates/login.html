@@ -1,38 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Register &amp; Login - Open Library Search</title>
+    <title>Login - Library Search</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-left">
-            <a href="/">Open Library Search</a>
+            <h1>Library Search</h1>
         </div>
         <div class="nav-right">
             <a href="/">Home</a>
-            <a href="/login">Register &amp; Login</a>
+            {% if session.get('user') %}
+                <a href="/dashboard">Dashboard</a>
+                <a href="/logout">Logout</a>
+            {% else %}
+                <a href="/register">Register</a>
+                <a href="/login">Login</a>
+            {% endif %}
             <a href="/about">About</a>
         </div>
     </nav>
 
-    <!-- Login Content -->
     <div class="container">
-        <h1>Register &amp; Login</h1>
-        <p>This page is a placeholder for user authentication functionality.</p>
-        <form>
+        <h1>Login</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flashes">
+              {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        <form method="POST" action="/login">
             <div>
                 <label for="username">Username:</label>
-                <input type="text" id="username" name="username">
+                <input type="text" id="username" name="username" required>
             </div>
             <div>
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password">
+                <input type="password" id="password" name="password" required>
             </div>
             <button type="submit">Login</button>
         </form>
-        <p>Don't have an account? <a href="/register">Register here</a>.</p>
     </div>
 </body>
 </html>

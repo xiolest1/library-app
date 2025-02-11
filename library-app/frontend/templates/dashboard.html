@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>About - Library Search</title>
+    <title>Dashboard - Library Search</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -22,13 +22,11 @@
         </div>
     </nav>
 
-    <!-- About Content -->
+    <!-- Dashboard Content -->
     <div class="container">
-        <h1>About Library Search</h1>
-        <p>
-            This application uses the Open Library API to search for books by Title, Author, Subject, or ISBN.
-            It is built with Flask and demonstrates real-time search (on the home page) along with basic user authentication.
-        </p>
+        <h1>User Dashboard</h1>
+        <p>Welcome, {{ username }}!</p>
+        <p>Email: {{ user_info.email }}</p>
     </div>
 </body>
 </html>

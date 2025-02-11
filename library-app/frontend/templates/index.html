@@ -1,66 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Library Search App</title>
+    <title>Library Search</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-
-    <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-left">
-            <div class="search-controls">
-                <select id="criteriaSelect">
-                    <option value="title">Title</option>
-                    <option value="author">Author</option>
-                    <option value="subject">Subject</option>
-                    <option value="isbn">ISBN</option>
-                </select>
-                <input type="text" id="searchInput" placeholder="Search books...">
-            </div>
+            <h1>Library Search</h1>
+        </div>
+        <div class="nav-center">
+            <select id="criteriaSelect">
+                <option value="title">Title</option>
+                <option value="author">Author</option>
+                <option value="subject">Subject</option>
+                <option value="isbn">ISBN</option>
+            </select>
+            <input type="text" id="searchInput" placeholder="Search books...">
         </div>
         <div class="nav-right">
             <a href="/">Home</a>
-            <a href="/login">Register &amp; Login</a>
+            {% if session.get('user') %}
+                <a href="/dashboard">Dashboard</a>
+                <a href="/logout">Logout</a>
+            {% else %}
+                <a href="/register">Register</a>
+                <a href="/login">Login</a>
+            {% endif %}
             <a href="/about">About</a>
         </div>
     </nav>
-    <!-- Main Content -->
+
     <div class="container">
-        <h1>Library Search App</h1>
         <div id="results"></div>
     </div>
-
+    
     <script>
         const criteriaSelect = document.getElementById('criteriaSelect');
         const searchInput = document.getElementById('searchInput');
         const resultsDiv = document.getElementById('results');
 
-        // Real-time search function
         searchInput.addEventListener('input', async (e) => {
             const query = e.target.value.trim();
             const criteria = criteriaSelect.value;
-
             if (query.length > 0) {
-                // Send both query and criteria to the backend
                 const response = await fetch(`/search?q=${encodeURIComponent(query)}&criteria=${encodeURIComponent(criteria)}`);
                 const books = await response.json();
                 displayResults(books);
             } else {
-                resultsDiv.innerHTML = ''; 
+                resultsDiv.innerHTML = '';
             }
         });
-        
+
         function displayResults(books) {
             resultsDiv.className = 'results-grid';
             resultsDiv.innerHTML = books.map(book => {
                 const coverUrl = book.cover_i
                     ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
                     : 'https://via.placeholder.com/128x192?text=No+Cover';
-
                 return `
                     <div class="book">
-                        <img src="${coverUrl}" alt="Book Cover" class="book-cover">   
+                        <img src="${coverUrl}" alt="Book Cover" class="book-cover">
                         <div>
                             <h3>${book.title}</h3>
                             <p>Author: ${book.author}</p>
