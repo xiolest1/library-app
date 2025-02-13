@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
 </head>
 <body>
-  <!-- Navigation Banner -->
   <nav class="banner">
     <img src="/static/logo.png" alt="Library Logo" class="logo">
     <div class="banner-item">
@@ -34,13 +33,11 @@
     </div>
   </nav>
 
-  <!-- Large Image with Overlay Text -->
   <div class="image-container">
     <img src="/static/img0.png" alt="Library Image" class="library-image">
     <div class="overlay-text">Discover. Learn. Explore.</div>
   </div>
 
-  <!-- Main Content: Search Section -->
   <div class="container">
     <h1>NYPL Library Search</h1>
     <div class="search-controls">
@@ -52,44 +49,125 @@
       </select>
       <input type="text" id="searchInput" placeholder="Search books...">
     </div>
+    <!-- Sort dropdown -->
+    <div style="margin: 20px 0;">
+      <select id="sortSelect">
+        <option value="">-- Sort By --</option>
+        <option value="date">Publication Date</option>
+        <option value="title">Title (A–Z)</option>
+        <option value="pages">Pages</option>
+        <option value="rating">Star Rating</option>
+        <option value="editions">Editions</option>
+      </select>
+    </div>
     <div id="results"></div>
+    <!-- Pagination -->
+    <div id="pagination" style="text-align: center; margin-top: 20px;"></div>
   </div>
 
   <script>
     const criteriaSelect = document.getElementById('criteriaSelect');
+    const sortSelect = document.getElementById('sortSelect');
     const searchInput = document.getElementById('searchInput');
     const resultsDiv = document.getElementById('results');
+    const paginationDiv = document.getElementById('pagination');
 
-    // Real-time search using the original functionality (with cover images)
+    let allBooks = [];
+    let currentPage = 1;
+    const itemsPerPage = 25;  // 5x5 grid
+
+    // Real-time search
     searchInput.addEventListener('input', async (e) => {
       const query = e.target.value.trim();
       const criteria = criteriaSelect.value;
       if (query.length > 0) {
         const response = await fetch(`/search?q=${encodeURIComponent(query)}&criteria=${encodeURIComponent(criteria)}`);
-        const books = await response.json();
-        displayResults(books);
+        allBooks = await response.json();
+        currentPage = 1;
+        renderPage();
       } else {
         resultsDiv.innerHTML = '';
+        clearPagination();
+        allBooks = [];
       }
     });
 
-    function displayResults(books) {
+    // Sorting for results
+    sortSelect.addEventListener('change', () => {
+      const sortBy = sortSelect.value;
+      if (sortBy === "date") {
+        allBooks.sort((a, b) => a.year - b.year);
+      } else if (sortBy === "title") {
+        allBooks.sort((a, b) => a.title.localeCompare(b.title));
+      } else if (sortBy === "pages") {
+        allBooks.sort((a, b) => a.pages - b.pages);
+      } else if (sortBy === "rating") {
+        allBooks.sort((a, b) => a.ratings_average - b.ratings_average);
+      } else if (sortBy === "editions") {
+        allBooks.sort((a, b) => a.edition_count - b.edition_count);
+      }
+      currentPage = 1;
+      renderPage();
+    });
+
+    function renderPage() {
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const pageBooks = allBooks.slice(startIndex, endIndex);
       resultsDiv.className = 'results-grid';
-      resultsDiv.innerHTML = books.map(book => {
+      resultsDiv.innerHTML = pageBooks.map(book => {
         const coverUrl = book.cover_i
           ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
           : 'https://via.placeholder.com/128x192?text=No+Cover';
         return `
-          <div class="book">
-            <img src="${coverUrl}" alt="Book Cover" class="book-cover">
-            <div>
-              <h3>${book.title}</h3>
-              <p>Author: ${book.author}</p>
-              ${book.year ? `<p>Year: ${book.year}</p>` : ''}
+          <a href="/book${book.key}" style="text-decoration: none; color: inherit;">
+            <div class="book">
+              <img src="${coverUrl}" alt="Book Cover" class="book-cover">
+              <div>
+                <h3>${book.title}</h3>
+                <p>Author: ${book.author}</p>
+                ${book.year ? `<p>Year: ${book.year}</p>` : ''}
+                ${book.pages ? `<p>Pages: ${book.pages}</p>` : ''}
+                ${book.ratings_average ? `<p>Rating: ${book.ratings_average}</p>` : ''}
+                ${book.edition_count ? `<p>Editions: ${book.edition_count}</p>` : ''}
+              </div>
             </div>
-          </div>
+          </a>
         `;
       }).join('');
+      renderPaginationControls();
+    }
+
+    function renderPaginationControls() {
+      const totalPages = Math.ceil(allBooks.length / itemsPerPage);
+      let paginationHTML = "";
+      if (currentPage > 1) {
+        paginationHTML += `<button id="prevPage">Previous</button>`;
+      }
+      paginationHTML += ` Page ${currentPage} of ${totalPages} `;
+      if (currentPage < totalPages) {
+        paginationHTML += `<button id="nextPage">Next</button>`;
+      }
+      paginationDiv.innerHTML = paginationHTML;
+
+      const prevButton = document.getElementById('prevPage');
+      const nextButton = document.getElementById('nextPage');
+      if (prevButton) {
+        prevButton.addEventListener('click', () => {
+          currentPage--;
+          renderPage();
+        });
+      }
+      if (nextButton) {
+        nextButton.addEventListener('click', () => {
+          currentPage++;
+          renderPage();
+        });
+      }
+    }
+
+    function clearPagination() {
+      paginationDiv.innerHTML = "";
     }
   </script>
 </body>

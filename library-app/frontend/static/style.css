@@ -1,161 +1,322 @@
+/* Global Resets */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
-    color: #333;
-  }
-  
-  /* Banner (Navigation Bar) */
-  .banner {
-    width: 100%;
-    background: linear-gradient(135deg, #0077b6, #023e8a);
-    color: white;
-    display: flex;
-    justify-content: space-around;
-    padding: 15px 0;
-    position: fixed;
-    top: 0;
-    left: 0;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    font-weight: 600;
-    align-items: center;
-    z-index: 10;
-  }
-  
-  .logo {
-    position: absolute;
-    top: 0;
-    left: 20px;
-    width: 50px;
-    height: auto;
-    z-index: 10;
-  }
-  
-  .banner-item {
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-  }
-  
-  .banner-item:hover {
-    transform: scale(1.1);
-    color: #ffdd57;
-  }
-  
-  /* Image Container with Overlay */
-  .image-container {
-    position: relative;
-    width: 100%;
-    height: 50vh;
-    overflow: hidden;
-    margin-top: 70px; /* To ensure it appears below the fixed banner */
-  }
-  
-  .library-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .overlay-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    padding: 20px 40px;
-    font-size: 50px;
-    font-weight: bold;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 5px;
-    border-radius: 8px;
-    text-shadow: 4px 4px 12px rgba(0, 0, 0, 0.7);
-  }
-  
-  /* Main Content Container */
-  .container {
-    text-align: center;
-    margin: 30px auto 20px auto;
-    padding: 20px;
-    width: 80%;
-    max-width: 600px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    position: relative;
-    z-index: 1;
-  }
-  
-  h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #0077b6;
-  }
-  
-  /* Search Controls */
-  .search-controls {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
-  
-  .search-controls select {
-    padding: 10px;
-    margin-right: 10px;
-  }
-  
-  .search-controls input {
-    width: 70%;
-    padding: 12px;
-    font-size: 16px;
-    border: 2px solid #0077b6;
-    border-radius: 8px;
-    outline: none;
-    transition: 0.3s;
-  }
-  
-  .search-controls input:focus {
-    border-color: #ffdd57;
-    box-shadow: 0 0 10px rgba(255, 221, 87, 0.5);
-  }
-  
-  /* Results Grid and Book Styles */
-  .results-grid {
-    margin-top: 20px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-  
-  .book {
-    background: #f1f3f5;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 10px 0;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease-in-out;
-  }
-  
-  .book:hover {
-    transform: scale(1.02);
-    background: #e9ecef;
-  }
-  
-  .book h3 {
-    color: #0077b6;
-  }
-  
-  .book img.book-cover {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    border-radius: 5px;
-    margin-bottom: 10px;
-  }
-  
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+  color: #333;
+}
+
+/* Banner (Navigation Bar) */
+.banner {
+  width: 100%;
+  background: linear-gradient(135deg, #0077b6, #023e8a);
+  color: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 15px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+  align-items: center;
+  z-index: 10;
+}
+
+.logo {
+  position: absolute;
+  top: 0;
+  left: 20px;
+  width: 50px;
+  height: auto;
+  z-index: 10;
+}
+
+.banner-item {
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.banner-item:hover {
+  transform: scale(1.1);
+  color: #ffdd57;
+}
+
+/* Image Container with Overlay */
+.image-container {
+  position: relative;
+  width: 100%;
+  height: 50vh;
+  overflow: hidden;
+  margin-top: 70px; /* To clear the fixed banner */
+}
+
+.library-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overlay-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 20px 40px;
+  font-size: 50px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  border-radius: 8px;
+  text-shadow: 4px 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+/* Main Content Container */
+.container {
+  text-align: center;
+  margin: 30px auto 20px auto;
+  padding: 20px;
+  width: 80%;
+  max-width: 1000px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #0077b6;
+}
+
+/* Search Controls */
+.search-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.search-controls select {
+  padding: 10px;
+  margin-right: 10px;
+}
+
+.search-controls input {
+  width: 70%;
+  padding: 12px;
+  font-size: 16px;
+  border: 2px solid #0077b6;
+  border-radius: 8px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.search-controls input:focus {
+  border-color: #ffdd57;
+  box-shadow: 0 0 10px rgba(255, 221, 87, 0.5);
+}
+
+/* Results Grid and Book Card Styles */
+.results-grid {
+  margin-top: 20px;
+  display: grid;
+  /* Ensures a responsive grid with a minimum width per item */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.book {
+  background: #f1f3f5;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  text-align: left;
+}
+
+.book:hover {
+  transform: scale(1.02);
+  background: #e9ecef;
+}
+
+.book h3 {
+  color: #0077b6;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.book p {
+  font-size: 14px;
+  margin: 2px 0;
+}
+
+.book img.book-cover {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+/* Pagination Controls */
+#pagination button {
+  background-color: #0077b6;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  margin: 0 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+#pagination button:hover {
+  background-color: #023e8a;
+}
+
+/* Book Detail Page Styles */
+.book-detail {
+  margin-top: 90px; /* to clear fixed banner */
+  padding: 20px;
+}
+
+.back-button {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.btn {
+  background-color: #0077b6;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #023e8a;
+}
+
+.book-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.book-cover-container {
+  flex: 1 1 300px;
+  text-align: center;
+}
+
+.book-cover-large {
+  max-width: 300px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.book-info {
+  flex: 2 1 400px;
+  text-align: left;
+}
+
+.book-info h1 {
+  margin-bottom: 10px;
+  color: #0077b6;
+}
+
+.book-info p {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+/* Author Section */
+.author-section {
+  margin-top: 30px;
+}
+
+.authors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.author-card {
+  background: #f1f3f5;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  width: 200px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.author-card:hover {
+  transform: translateY(-5px);
+}
+
+.author-photo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.author-bio {
+  font-size: 0.9em;
+  color: #555;
+}
+
+/* Other Works Section */
+.other-works-section {
+  margin-top: 40px;
+  text-align: left;
+}
+
+.other-works-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+.other-work-card {
+  background: #f9f9f9;
+  border-radius: 5px;
+  padding: 10px;
+  width: 150px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.other-work-card:hover {
+  transform: scale(1.05);
+}
+
+.other-work-cover {
+  width: 100%;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.other-work-card a {
+  text-decoration: none;
+  color: #0077b6;
+  font-weight: 600;
+}

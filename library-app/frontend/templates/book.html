@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ work.title }} - NYPL Library Search</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <nav class="banner">
+    <img src="/static/logo.png" alt="Library Logo" class="logo">
+    <div class="banner-item">
+      <a href="/" style="color: inherit; text-decoration: none;">Home</a>
+    </div>
+    {% if session.get('user') %}
+      <div class="banner-item">
+        <a href="/dashboard" style="color: inherit; text-decoration: none;">Dashboard</a>
+      </div>
+      <div class="banner-item">
+        <a href="/logout" style="color: inherit; text-decoration: none;">Logout</a>
+      </div>
+    {% else %}
+      <div class="banner-item">
+        <a href="/login" style="color: inherit; text-decoration: none;">Login</a>
+      </div>
+      <div class="banner-item">
+        <a href="/register" style="color: inherit; text-decoration: none;">Register</a>
+      </div>
+    {% endif %}
+    <div class="banner-item">
+      <a href="/about" style="color: inherit; text-decoration: none;">About</a>
+    </div>
+  </nav>
+
+  <div class="container book-detail">
+    <div class="back-button">
+      <a href="javascript:history.back()" class="btn">← Back to Results</a>
+    </div>
+    <div class="book-header">
+      <div class="book-cover-container">
+        {% if work.covers %}
+          <img src="https://covers.openlibrary.org/b/id/{{ work.covers[0] }}-L.jpg" alt="Book Cover" class="book-cover-large">
+        {% else %}
+          <img src="https://via.placeholder.com/300x400?text=No+Cover" alt="No Cover" class="book-cover-large">
+        {% endif %}
+      </div>
+      <div class="book-info">
+        <h1>{{ work.title }}</h1>
+        <p><strong>First Published:</strong> {{ work.first_publish_date if work.first_publish_date else "N/A" }}</p>
+        <p><strong>Subjects:</strong>
+          {% if work.subjects %}
+            {{ work.subjects | join(', ') }}
+          {% else %}
+            N/A
+          {% endif %}
+        </p>
+        <p><strong>Description:</strong>
+          {% if work.description %}
+            {% if work.description is string %}
+              {{ work.description }}
+            {% else %}
+              {{ work.description.value }}
+            {% endif %}
+          {% else %}
+            N/A
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <div class="author-section">
+      <h2>Authors</h2>
+      <div class="authors">
+        {% for author in authors %}
+          <div class="author-card">
+            {% if author.photos %}
+              <img src="https://covers.openlibrary.org/a/id/{{ author.photos[0] }}-M.jpg" alt="Author Photo" class="author-photo">
+            {% else %}
+              <img src="https://via.placeholder.com/100?text=No+Photo" alt="No Photo" class="author-photo">
+            {% endif %}
+            <h3>{{ author.name }}</h3>
+            {% if author.bio %}
+              <p class="author-bio">
+                {% if author.bio is string %}
+                  {{ author.bio }}
+                {% else %}
+                  {{ author.bio.value }}
+                {% endif %}
+              </p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if authors %}
+      <div class="other-works-section">
+        <h2>Other Works by {{ authors[0].name }}</h2>
+        <div class="other-works-grid">
+          {% for work_item in other_works %}
+            <div class="other-work-card">
+              {% if work_item.covers %}
+                <img src="https://covers.openlibrary.org/b/id/{{ work_item.covers[0] }}-M.jpg" alt="Work Cover" class="other-work-cover">
+              {% else %}
+                <img src="https://via.placeholder.com/100x150?text=No+Cover" alt="No Cover" class="other-work-cover">
+              {% endif %}
+              <a href="/book{{ work_item.key }}">{{ work_item.title }}</a>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
