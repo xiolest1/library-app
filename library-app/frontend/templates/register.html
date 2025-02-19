@@ -1,60 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Library Search</title>
-    <link rel="stylesheet" href="../static/style.css"> <!-- Adjust if necessary -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Library Search</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
 </head>
 <body>
+  <nav class="banner">
+    <a href="/"><img src="/static/logo.png" alt="Library Logo" class="logo"></a>
+    <a href="/" class="banner-item">Home</a>
+    <a href="/about" class="banner-item">About</a>
+    {% if session.get('user') %}
+      <a href="/dashboard" class="banner-item">Dashboard</a>
+      <a href="/logout" class="banner-item">Logout</a>
+    {% else %}
+      <a href="/login" class="banner-item">Login</a>
+      <a href="/register" class="banner-item">Register</a>
+    {% endif %}
+  </nav>
 
-    <!-- Banner Section -->
-    <div class="banner">
-        <a href="index.html">
-            <img src="../static/logo.png" alt="Library Logo" class="logo">
-        </a>
-        <a href="/" class="banner-item">Home</a>
-        <a href="dashboard.html" class="banner-item">Dashboard</a>
-        <a href="about.html" class="banner-item">About</a>
-        <a href="login.html" class="banner-item">Login</a>
-        <a href="register.html" class="banner-item">Register</a>
-    </div>
+  <div class="image-container">
+    <img src="/static/img0.png" alt="Library Image" class="library-image">
+    <div class="overlay-text">Register</div>
+  </div>
 
-    <!-- Image in the Middle -->
-    <div class="image-container">
-        <img src="../static/img0.png" alt="Library Image" class="library-image">
-        <div class="overlay-text">Register</div>
-    </div>
-
-    <!-- Register Form Section -->
-    <div class="container">
-        <h1>Register here</h1>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <ul class="flashes">
-              {% for category, message in messages %}
-                <li class="{{ category }}">{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
-        
-        <form method="POST" action="/register">
-            <div>
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit">Register</button>
-        </form>
-    </div>
-
+  <div class="container">
+    <h1>Register here</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <form method="POST" action="/register">
+      <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+      </div>
+      <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <button type="submit">Register</button>
+    </form>
+  </div>
 </body>
 </html>

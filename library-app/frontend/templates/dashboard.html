@@ -1,38 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Library Search</title>
-    <link rel="stylesheet" href="../static/style.css"> <!-- Adjust path if needed -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Library Search</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
 </head>
 <body>
+  <nav class="banner">
+    <a href="/"><img src="/static/logo.png" alt="Library Logo" class="logo"></a>
+    <a href="/" class="banner-item">Home</a>
+    {% if session.get('user') %}
+      <a href="/dashboard" class="banner-item">Dashboard</a>
+      <a href="/logout" class="banner-item">Logout</a>
+    {% else %}
+      <a href="/login" class="banner-item">Login</a>
+      <a href="/register" class="banner-item">Register</a>
+    {% endif %}
+    <a href="/about" class="banner-item">About</a>
+  </nav>
 
-    <!-- Banner Section -->
-    <div class="banner">
-        <a href="index.html">
-            <img src="../static/logo.png" alt="Library Logo" class="logo">
-        </a>
-        <a href="/" class="banner-item">Home</a>
-        <a href="dashboard.html" class="banner-item">Dashboard</a>
+  <div class="image-container">
+    <img src="/static/img0.png" alt="Library Image" class="library-image">
+    <div class="overlay-text">Dashboard</div>
+  </div>
 
-        <a href="about.html" class="banner-item">About</a>
-        <a href="login.html" class="banner-item">Login</a>
-        <a href="register.html" class="banner-item">Register</a>
-    </div>
-
-    <!-- Image in the Middle -->
-    <div class="image-container">
-        <img src="../static/img0.png" alt="Library Image" class="library-image">
-        <div class="overlay-text">Dashboard</div>
-    </div>
-
-    <!-- Dashboard Content -->
-    <div class="container">
-        <h1>User Dashboard</h1>
-        <p>Welcome, {{ username }}!</p>
-        <p>Email: {{ user_info.email }}</p>
-    </div>
-
+  <div class="container">
+    <h1>User Dashboard</h1>
+    <p>Welcome, {{ username }}!</p>
+    <p>Email: {{ user_info.email }}</p>
+  </div>
 </body>
 </html>
