@@ -1,33 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About - Library Search</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-left">
-            <h1>Library Search</h1>
-        </div>
-        <div class="nav-right">
-            <a href="/">Home</a>
-            {% if session.get('user') %}
-                <a href="/dashboard">Dashboard</a>
-                <a href="/logout">Logout</a>
-            {% else %}
-                <a href="/register">Register</a>
-                <a href="/login">Login</a>
-            {% endif %}
-            <a href="/about">About</a>
-        </div>
+    <nav class="banner">
+        <a href="/">
+            <img src="../static/logo.png" alt="Library Logo" class="logo">
+        </a>
+        <a href="/" class="banner-item">Home</a>
+        {% if session.get('user') %}
+            <a href="/dashboard" class="banner-item">Dashboard</a>
+            <a href="/logout" class="banner-item">Logout</a>
+        {% else %}
+            <a href="/login" class="banner-item">Login</a>
+            <a href="/register" class="banner-item">Register</a>
+        {% endif %}
+        <a href="/about" class="banner-item">About</a>
     </nav>
 
-    <!-- About Content -->
+    <div class="image-container">
+        <img src="../static/img0.png" alt="Library Image" class="library-image">
+        <div class="overlay-text">About us</div>
+    </div>
+
     <div class="container">
         <h1>About Library Search</h1>
         <p>
+            Our Library Search platform helps you find books and resources easily. 
+            We aim to provide quick access to information and make learning more convenient. 
+            Explore our collection and discover new knowledge today.
+        </p>
+        <p>
+            With a user-friendly interface, you can search for books by title, author, subject, or ISBN. 
+            Our goal is to provide quick access to information and make learning more convenient and enjoyable for everyone.
+        </p>
+        <p>
+            Explore our collection, learn something new, and enhance your knowledge today. 
+            Join our community of learners and discover a world of information at your fingertips.
+        </p>
+        <p>
             This application uses the Open Library API to search for books by Title, Author, Subject, or ISBN.
-            It is built with Flask and demonstrates real-time search along with basic user function.
+            It is built with Flask and demonstrates real-time search along with basic user functions.
         </p>
     </div>
 </body>

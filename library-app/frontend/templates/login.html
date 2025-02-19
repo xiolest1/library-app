@@ -1,29 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Library Search</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="../static/style.css"> <!-- Adjust if necessary -->
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-left">
-            <h1>Library Search</h1>
-        </div>
-        <div class="nav-right">
-            <a href="/">Home</a>
-            {% if session.get('user') %}
-                <a href="/dashboard">Dashboard</a>
-                <a href="/logout">Logout</a>
-            {% else %}
-                <a href="/register">Register</a>
-                <a href="/login">Login</a>
-            {% endif %}
-            <a href="/about">About</a>
-        </div>
-    </nav>
 
+    <!-- Banner Section -->
+    <div class="banner">
+        <a href="index.html">
+            <img src="../static/logo.png" alt="Library Logo" class="logo">
+        </a>
+        <a href="/" class="banner-item">Home</a>
+        <a href="dashboard.html" class="banner-item">Dashboard</a>
+        <a href="about.html" class="banner-item">About</a>
+        <a href="login.html" class="banner-item">Login</a>
+        <a href="register.html" class="banner-item">Register</a>
+    </div>
+
+    <div class="image-container">
+        <img src="../static/img0.png" alt="Library Image" class="library-image">
+        <div class="overlay-text">Login</div>
+    </div>
+
+    <!-- Login Form Section -->
     <div class="container">
-        <h1>Login</h1>
+        <h1>Login here</h1>
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             <ul class="flashes">
@@ -33,6 +37,7 @@
             </ul>
           {% endif %}
         {% endwith %}
+        
         <form method="POST" action="/login">
             <div>
                 <label for="username">Username:</label>
@@ -45,5 +50,6 @@
             <button type="submit">Login</button>
         </form>
     </div>
+
 </body>
 </html>
