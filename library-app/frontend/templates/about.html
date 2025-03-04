@@ -11,6 +11,7 @@
   <nav class="banner">
     <a href="/"><img src="/static/logo.png" alt="Library Logo" class="logo"></a>
     <a href="/" class="banner-item">Home</a>
+    <a href="/about" class="banner-item">About</a>
     {% if session.get('user') %}
       <a href="/dashboard" class="banner-item">Dashboard</a>
       <a href="/logout" class="banner-item">Logout</a>
@@ -18,7 +19,6 @@
       <a href="/login" class="banner-item">Login</a>
       <a href="/register" class="banner-item">Register</a>
     {% endif %}
-    <a href="/about" class="banner-item">About</a>
   </nav>
 
   <div class="image-container">

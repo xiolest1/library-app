@@ -1,13 +1,17 @@
+<!-- Homepage -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NYPL Library Search</title>
+  <title>Library Search</title>
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
 </head>
 <body>
+
+  <!-- Top Nav Bar-->
   <nav class="banner">
     <a href="/"><img src="/static/logo.png" alt="Library Logo" class="logo"></a>
     <a href="/" class="banner-item">Home</a>
@@ -21,13 +25,15 @@
     {% endif %}
   </nav>
 
+  <!-- Background image-->
   <div class="image-container">
     <img src="/static/img0.png" alt="Library Image" class="library-image">
     <div class="overlay-text">Discover. Learn. Explore.</div>
   </div>
 
+  <!-- Main contaner for the search interface -->
   <div class="container">
-    <h1>NYPL Library Search</h1>
+    <h1>Library Search</h1>
     <div class="search-controls">
       <select id="criteriaSelect">
         <option value="title">Title</option>
@@ -38,6 +44,7 @@
       <input type="text" id="searchInput" placeholder="Search books...">
     </div>
 
+    <!-- Sort dropdown to reorder the search results-->
     <div class="sort-controls">
       <select id="sortSelect">
         <option value="">-- Sort By --</option>
@@ -49,10 +56,13 @@
       </select>
     </div>
 
+    <!-- Displays the results grid-->
     <div id="results" class="results-grid"></div>
+    <!-- Pagination-->
     <div id="pagination" class="pagination-controls"></div>
   </div>
 
+  <!-- Handles real-time search, sorting, pagination-->
   <script>
     const criteriaSelect = document.getElementById('criteriaSelect');
     const sortSelect = document.getElementById('sortSelect');
@@ -60,25 +70,29 @@
     const resultsDiv = document.getElementById('results');
     const paginationDiv = document.getElementById('pagination');
 
-    let allBooks = [];
-    let currentPage = 1;
-    const itemsPerPage = 25;
+    let allBooks = []; // Stores full search results
+    let currentPage = 1; // Current page
+    const itemsPerPage = 25; // Number of books per page
 
     searchInput.addEventListener('input', async (e) => {
       const query = e.target.value.trim();
       const criteria = criteriaSelect.value;
       if (query.length > 0) {
+
+        // fetch search query and criteria
         const response = await fetch(`/search?q=${encodeURIComponent(query)}&criteria=${encodeURIComponent(criteria)}`);
         allBooks = await response.json();
         currentPage = 1;
         renderPage();
       } else {
+        // If query is empty, clear results
         resultsDiv.innerHTML = '';
         clearPagination();
         allBooks = [];
       }
     });
 
+    // Change sort order
     sortSelect.addEventListener('change', () => {
       const sortBy = sortSelect.value;
       if (sortBy === "date") {
@@ -96,6 +110,7 @@
       renderPage();
     });
 
+    // Display the current page of results
     function renderPage() {
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
@@ -123,6 +138,7 @@
       renderPaginationControls();
     }
 
+    // Add "previous" & "next" buttons
     function renderPaginationControls() {
       const totalPages = Math.ceil(allBooks.length / itemsPerPage);
       let paginationHTML = "";
@@ -151,6 +167,7 @@
       }
     }
 
+    // When no results, clears pagintation controls
     function clearPagination() {
       paginationDiv.innerHTML = "";
     }
