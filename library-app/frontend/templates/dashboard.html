@@ -1,21 +1,18 @@
 <!-- 
- 
-Dashboard page for users who are logged-in.
+Dashboard page for users who are logged in.
 
-Shows them basic user info, custom lists and ability to create new lists
-
+Shows basic user info, plus a section for custom lists 
+(and whatever books are in those lists).
 -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Dashboard - Library Search</title>
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
   
-  <!-- Inline styles -->
   <style>
     .dashboard-container {
       display: flex;
@@ -52,7 +49,7 @@ Shows them basic user info, custom lists and ability to create new lists
       font-weight: 600;
     }
 
-    /* Main content of tabs within user dahsboard displayed on the right side, such as overview or costume list content */
+    /* Main content to the right of the sidebar */
     .main-content {
       flex: 1;
       padding: 30px;
@@ -75,6 +72,11 @@ Shows them basic user info, custom lists and ability to create new lists
       justify-content: space-between;
       align-items: center;
     }
+    .list-section h3 form {
+      display: inline;
+      margin: 0;
+      padding: 0;
+    }
     .list-section ul {
       list-style: none;
       padding-left: 0;
@@ -88,9 +90,6 @@ Shows them basic user info, custom lists and ability to create new lists
     .list-section ul li a {
       text-decoration: none;
       color: #0077b6;
-    }
-    .delete-form {
-      display: inline;
     }
     .flashes {
       list-style: none;
@@ -127,12 +126,12 @@ Shows them basic user info, custom lists and ability to create new lists
 </head>
 <body>
 
-  <!-- Top of navigation banner -->
+  <!-- Top navigation banner -->
   <nav class="banner">
     <a href="/"><img src="/static/logo.png" alt="Library Logo" class="logo"></a>
     <a href="/" class="banner-item">Home</a>
     <a href="/about" class="banner-item">About</a>
-    {% if session.get('user') %}
+    {% if session.get('user_id') %}
       <a href="/dashboard" class="banner-item active">Dashboard</a>
       <a href="/logout" class="banner-item">Logout</a>
     {% else %}
@@ -141,8 +140,8 @@ Shows them basic user info, custom lists and ability to create new lists
     {% endif %}
   </nav>
 
-  <!-- Main dashboard container with vertical sidebar-->
   <div class="dashboard-container">
+    <!-- Sidebar -->
     <div class="sidebar">
       <ul>
         <li data-section="overview"><a href="#">Overview</a></li>
@@ -150,19 +149,20 @@ Shows them basic user info, custom lists and ability to create new lists
         <li data-section="create-list"><a href="#">Create New List</a></li>
       </ul>
     </div>
+
     <div class="main-content">
 
-      <!-- Overview -->
+      <!-- Overview Section -->
       <section id="overview" class="dashboard-section">
         <h1>User Dashboard</h1>
+        <!-- Only show username; removed user_info.email since we don't pass that -->
         <p>Welcome, {{ username }}!</p>
-        <p>Email: {{ user_info.email }}</p>
       </section>
 
-      <!-- Custom Lists -->
+      <!-- Custom Lists Section -->
       <section id="custom-lists" class="dashboard-section">
         <h2>Your Custom Lists</h2>
-        <!-- Flash message , success or error -->
+        <!-- Flash messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             <ul class="flashes">
@@ -173,33 +173,39 @@ Shows them basic user info, custom lists and ability to create new lists
           {% endif %}
         {% endwith %}
 
-        <!-- loop through the lists of the user-->
-        {% for list_name, books in custom_lists.items() %}
-          {% set editing_this_list = (list_name == edit_list_name) %}
+        <!-- Display each list with rename/delete forms, plus items inside -->
+        {% for lst in lists %}
           <div class="list-section">
             <h3>
-              <span>{{ list_name }}</span>
-              <!-- If user editing their list, shows different button-->
-              {% if editing_this_list %}
-                <a href="{{ url_for('dashboard', tab='custom-lists') }}" class="btn">Done Editing</a>
-              {% else %}
-                <a href="{{ url_for('dashboard', tab='custom-lists', editList=list_name) }}" class="btn">Edit List</a>
-              {% endif %}
+              <span>{{ lst.name }}</span>
+              <span>
+                <!-- Rename form -->
+                <form method="POST" action="/lists/{{ lst.id }}/rename" style="display:inline;">
+                  <input type="text" name="new_name" placeholder="Rename" style="width:100px;">
+                  <button type="submit" class="btn">Rename</button>
+                </form>
+                <!-- Delete entire list form -->
+                <form method="POST" action="/lists/{{ lst.id }}/delete" style="display:inline; margin-left:5px;">
+                  <button type="submit" class="btn">Delete List</button>
+                </form>
+              </span>
             </h3>
-            {% if books %}
+
+            <!-- If the list has items, show them -->
+            {% if lst.items %}
               <ul>
-                <!-- Shows each book in the list -->
-                {% for book in books %}
+                {% for item in lst.items %}
                   <li>
-                    <a href="/book{{ book.key }}">{{ book.title }}</a>
-                    {% if editing_this_list %}
-                      <!-- delete button in edit mode -->
-                      <form action="/delete_book" method="POST" class="delete-form">
-                        <input type="hidden" name="list_name" value="{{ list_name }}">
-                        <input type="hidden" name="book_key" value="{{ book.key }}">
-                        <button type="submit" class="btn">Delete</button>
-                      </form>
-                    {% endif %}
+                    <!-- Link to the open library book page -->
+                    <div>
+                      <a href="/book{{ item.book_key }}">{{ item.title }}</a>
+                      {% if item.author %} by {{ item.author }}{% endif %}
+                    </div>
+
+                    <!-- Remove item from list form -->
+                    <form method="POST" action="/lists/{{ lst.id }}/remove_item/{{ item.id }}">
+                      <button type="submit" class="btn">Remove</button>
+                    </form>
                   </li>
                 {% endfor %}
               </ul>
@@ -213,7 +219,6 @@ Shows them basic user info, custom lists and ability to create new lists
       <!-- Create New List -->
       <section id="create-list" class="dashboard-section">
         <h2>Create a New List</h2>
-        <!-- Message if success or error-->
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             <ul class="flashes">
@@ -223,29 +228,23 @@ Shows them basic user info, custom lists and ability to create new lists
             </ul>
           {% endif %}
         {% endwith %}
-        <!-- Form to create new list -->
-        <form method="POST" action="/create_list">
+        <form method="POST" action="/lists/create">
           <input type="text" name="list_name" placeholder="List name" required>
           <button type="submit" class="btn">Create List</button>
         </form>
       </section>
-    </div>
-  </div>
 
-  <!-- Javascript to handle which tabh is actived based on users clicks-->
+    </div><!-- /.main-content -->
+  </div><!-- /.dashboard-container -->
+
   <script>
-    // Default tab is overview
+    // Default tab is 'overview'
     const SERVER_ACTIVE_TAB = "{{ active_tab|default('overview') }}";
-
-    // Which list is in edit mode, if any
-    const SERVER_EDIT_LIST = "{{ edit_list_name|default('') }}";
-
     const sidebarItems = document.querySelectorAll('.sidebar ul li');
     const sections = document.querySelectorAll('.dashboard-section');
 
-    // here we highlight the correct sidebar menu and display its section
     window.addEventListener('DOMContentLoaded', () => {
-      // Mark correct sidebar item active
+      // Mark correct item active
       sidebarItems.forEach(item => {
         const sectionId = item.getAttribute('data-section');
         if (sectionId === SERVER_ACTIVE_TAB) {
@@ -253,12 +252,12 @@ Shows them basic user info, custom lists and ability to create new lists
         }
       });
 
-      // Shows the corresponding section
+      // Show corresponding section
       const targetSection = document.getElementById(SERVER_ACTIVE_TAB);
       if (targetSection) {
         targetSection.classList.add('active');
       } else {
-        // fallback to overview if no matching section
+        // fallback to overview
         document.getElementById('overview').classList.add('active');
         sidebarItems.forEach(item => {
           if (item.getAttribute('data-section') === 'overview') {
@@ -268,14 +267,11 @@ Shows them basic user info, custom lists and ability to create new lists
       }
     });
 
-    // Sidebar tab switching from users clicks
     sidebarItems.forEach(item => {
       item.addEventListener('click', () => {
-        // Removes active class from all items & sections
         sidebarItems.forEach(i => i.classList.remove('active'));
         sections.forEach(sec => sec.classList.remove('active'));
 
-        // Add active class to the clicked item and show its section
         item.classList.add('active');
         const sectionId = item.getAttribute('data-section');
         document.getElementById(sectionId).classList.add('active');

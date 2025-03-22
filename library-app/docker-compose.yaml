@@ -1,6 +1,16 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:14
+    container_name: library-db
+    environment:
+      POSTGRES_USER: library_user
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: library_db
+    ports:
+      - "5432:5432"
+
   web:
     build: ./backend
     ports:
@@ -8,3 +18,10 @@ services:
     volumes:
       - ./frontend/templates:/app/templates
       - ./frontend/static:/app/static
+    depends_on:
+      - db
+    environment:
+      # Example environment variable pointing to the db service.
+      # Inside your Flask code, you can read os.getenv("DATABASE_URL") or
+      # set app.config["SQLALCHEMY_DATABASE_URI"] directly to the same URI:
+      - DATABASE_URL=postgresql://library_user:password123@db:5432/library_db

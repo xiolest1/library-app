@@ -1,5 +1,6 @@
 <!-- 
-Displays detailed info about a specific book
+Displays detailed info about a specific Open Library book 
+and a form to add the book to one of the user's custom lists.
 -->
 
 <!DOCTYPE html>
@@ -38,7 +39,7 @@ Displays detailed info about a specific book
     <a href="/"><img src="/static/logo.png" alt="Library Logo" class="logo"></a>
     <a href="/" class="banner-item">Home</a>
     <a href="/about" class="banner-item">About</a>
-    {% if session.get('user') %}
+    {% if session.get('user_id') %}
       <a href="/dashboard" class="banner-item">Dashboard</a>
       <a href="/logout" class="banner-item">Logout</a>
     {% else %}
@@ -113,12 +114,12 @@ Displays detailed info about a specific book
         </div>
       </div>
 
-      <!-- Add to List form: user has to be logged in -->
-      {% if custom_lists %}
+      <!-- If user is logged in, show "Add to List" form. We pass user_lists from app.py -->
+      {% if user_lists %}
       <div class="add-to-list-container">
         <h2>Add to List</h2>
         <form method="POST" action="/add_to_list">
-          <!-- Hidden inputs to pass along details about the book-->>
+          <!-- Hidden inputs to pass book details to the add_to_list route -->
           <input type="hidden" name="book_key" value="{{ work.key }}">
           <input type="hidden" name="book_title" value="{{ work.title }}">
           {% if work.covers %}
@@ -127,10 +128,11 @@ Displays detailed info about a specific book
           {% if authors %}
             <input type="hidden" name="author" value="{{ authors[0].name }}">
           {% endif %}
+
           <label for="listSelect">Select List:</label>
-          <select id="listSelect" name="list_name">
-            {% for list_name in custom_lists.keys() %}
-              <option value="{{ list_name }}">{{ list_name }}</option>
+          <select id="listSelect" name="list_id">
+            {% for lst in user_lists %}
+              <option value="{{ lst.id }}">{{ lst.name }}</option>
             {% endfor %}
           </select>
           <button type="submit" class="btn" style="margin-top:10px;">Add to List</button>
@@ -139,7 +141,7 @@ Displays detailed info about a specific book
       {% endif %}
     </div>
 
-    <!-- Shows additional work by the author, if any-->
+    <!-- Shows additional works by the first author, if any -->
     {% if authors %}
       <div class="other-works-section" style="margin-top:40px;">
         <h2>Other Works by {{ authors[0].name }}</h2>

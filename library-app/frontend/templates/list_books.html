@@ -1,11 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Library Search</title>
+  <title>Local Books</title>
   <link rel="stylesheet" href="/static/style.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
 </head>
 <body>
   <nav class="banner">
@@ -20,14 +17,8 @@
       <a href="/register" class="banner-item">Register</a>
     {% endif %}
   </nav>
-
-  <div class="image-container">
-    <img src="/static/img0.png" alt="Library Image" class="library-image">
-    <div class="overlay-text">Login</div>
-  </div>
-
-  <div class="container">
-    <h1>Login here</h1>
+  <div class="container" style="margin-top:80px;">
+    <h1>Local Books</h1>
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <ul class="flashes">
@@ -37,17 +28,21 @@
         </ul>
       {% endif %}
     {% endwith %}
-    <form method="POST" action="/login">
-      <div>
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-      </div>
-      <div>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-      </div>
-      <button type="submit">Login</button>
-    </form>
+    {% if books %}
+      <ul>
+      {% for book in books %}
+        <li>
+          <strong>{{ book.title }}</strong> by {{ book.author or 'Unknown' }}
+          <!-- If the user wants to remove this record, they do a POST to /librarian/delete_book/ID -->
+          <form method="POST" action="/librarian/delete_book/{{ book.id }}" style="display:inline;">
+            <button type="submit">Delete</button>
+          </form>
+        </li>
+      {% endfor %}
+      </ul>
+    {% else %}
+      <p>No local books found.</p>
+    {% endif %}
   </div>
 </body>
-</html>
+</html> 
