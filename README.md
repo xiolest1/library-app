@@ -1,3 +1,5 @@
+Work in progress...
+
 # library-app
 
 This is a dockerized full-stack web application that allows users to search, explore, and manage books using the Open Library API, built with Flask, Javascript. the app features real-time search, sorting, pagination, user authentication with roles, and interacte book cards. the Users can save favorites, create book lists. With future plans to be included still.
@@ -66,3 +68,7 @@ README with pictures: https://docs.google.com/document/d/1TComLTDT7_nlRTwX1d4b0D
 
 - Open up your browser and type in “localhost:5001” 
 ---
+
+
+***
+(Add information about the postgreSQL download for future reference)
