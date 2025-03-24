@@ -163,15 +163,17 @@ Shows basic user info, plus a section for custom lists
       <section id="custom-lists" class="dashboard-section">
         <h2>Your Custom Lists</h2>
         <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <ul class="flashes">
-              {% for category, message in messages %}
-                <li class="{{ category }}">{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
+        {% if active_tab == 'custom-lists' %}
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <ul class="flashes">
+                {% for category, message in messages %}
+                  <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endwith %}
+        {% endif %}
 
         <!-- Display each list with rename/delete forms, plus items inside -->
         {% for lst in lists %}
@@ -219,15 +221,17 @@ Shows basic user info, plus a section for custom lists
       <!-- Create New List -->
       <section id="create-list" class="dashboard-section">
         <h2>Create a New List</h2>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <ul class="flashes">
-              {% for category, message in messages %}
-                <li class="{{ category }}">{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
+        {% if active_tab == 'create-list' %}
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <ul class="flashes">
+                {% for category, message in messages %}
+                  <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endwith %}
+        {% endif %}
         <form method="POST" action="/lists/create">
           <input type="text" name="list_name" placeholder="List name" required>
           <button type="submit" class="btn">Create List</button>

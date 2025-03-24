@@ -49,7 +49,6 @@ def role_required(*roles):
         return wrapper
     return decorator
 
-
 ###############################################################################
 # OPEN LIBRARY SEARCH LOGIC
 ###############################################################################
@@ -182,13 +181,14 @@ def dashboard():
     """
     user = current_user()
     user_lists = List.query.filter_by(user_id=user.id).all()
+    active_tab = request.args.get('tab', 'overview')
     # pass 'lists' and any other data
     return render_template(
         'dashboard.html',
         username=user.username,
         user_info=user,
         lists=user_lists,
-        active_tab='overview'
+        active_tab=active_tab
     )
 
 
@@ -197,19 +197,19 @@ def dashboard():
 @login_required
 def create_list():
     """
-    Create new list, then redirect to 'custom-lists' tab.
+    Create new list, then redirect to 'create-list' tab.
     """
     name = request.form.get('list_name','').strip()
     if not name:
         flash('List name required.', 'error')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard', tab='create-list'))
 
     new_list = List(name=name, user_id=current_user().id)
     db.session.add(new_list)
     db.session.commit()
 
     flash(f"List '{name}' created!", 'success')
-    return redirect(url_for('dashboard', tab='custom-lists'))
+    return redirect(url_for('dashboard', tab='create-list'))
 
 
 # RENAME A LIST
@@ -219,7 +219,7 @@ def rename_list(list_id):
     the_list = List.query.get_or_404(list_id)
     if the_list.user_id != current_user().id:
         flash("You don't own this list!", 'error')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard', tab='custom-lists'))
 
     new_name = request.form.get('new_name','').strip()
     if not new_name:
@@ -239,7 +239,7 @@ def delete_list(list_id):
     the_list = List.query.get_or_404(list_id)
     if the_list.user_id != current_user().id:
         flash("You don't own this list!", 'error')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard', tab='custom-lists'))
 
     db.session.delete(the_list)
     db.session.commit()
@@ -346,7 +346,6 @@ def book_detail(work_key):
         other_works=other_works,
         user_lists=user_lists  # so the template can show a dropdown
     )
-
 
 # ------------------------------
 # ADMIN
