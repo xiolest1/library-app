@@ -1,0 +1,3 @@
+# Forces shell scripts to use (Unix) LF instead of Windows (CRLF)
+*.sh text eol=lf
+
