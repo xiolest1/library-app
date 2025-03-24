@@ -74,22 +74,41 @@
     let currentPage = 1; // Current page
     const itemsPerPage = 25; // Number of books per page
 
-    searchInput.addEventListener('input', async (e) => {
-      const query = e.target.value.trim();
-      const criteria = criteriaSelect.value;
-      if (query.length > 0) {
+    // Debounce function to limit API calls
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
 
-        // fetch search query and criteria
+    // Search function that will be debounced
+    async function performSearch(query, criteria) {
+      if (query.length > 0) {
         const response = await fetch(`/search?q=${encodeURIComponent(query)}&criteria=${encodeURIComponent(criteria)}`);
         allBooks = await response.json();
         currentPage = 1;
         renderPage();
       } else {
-        // If query is empty, clear results
         resultsDiv.innerHTML = '';
         clearPagination();
         allBooks = [];
       }
+    }
+
+    // Create debounced version of performSearch with 300ms delay
+    const debouncedSearch = debounce(performSearch, 300);
+
+    // Modified event listener using debounced search
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.trim();
+      const criteria = criteriaSelect.value;
+      debouncedSearch(query, criteria);
     });
 
     // Change sort order
