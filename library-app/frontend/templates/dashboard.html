@@ -122,6 +122,43 @@ Shows basic user info, plus a section for custom lists
     .btn:hover {
       background-color: #023e8a;
     }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #4a5568;
+    }
+    .form-group input {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      font-size: 15px;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #4299e1;
+      box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+    }
+    .profile-section {
+      background-color: #f9fafb;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .profile-info {
+      margin-bottom: 20px;
+    }
+    .profile-edit {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
   </style>
 </head>
 <body>
@@ -132,11 +169,11 @@ Shows basic user info, plus a section for custom lists
     <a href="/" class="banner-item">Home</a>
     <a href="/about" class="banner-item">About</a>
     {% if session.get('user_id') %}
-      <a href="/dashboard" class="banner-item active">Dashboard</a>
-      <a href="/logout" class="banner-item">Logout</a>
+      <a href="{{ url_for('user_dashboard') }}" class="banner-item active">Dashboard</a>
+      <a href="{{ url_for('logout') }}" class="banner-item">Logout</a>
     {% else %}
-      <a href="/login" class="banner-item">Login</a>
-      <a href="/register" class="banner-item">Register</a>
+      <a href="{{ url_for('login') }}" class="banner-item">Login</a>
+      <a href="{{ url_for('register') }}" class="banner-item">Register</a>
     {% endif %}
   </nav>
 
@@ -155,14 +192,66 @@ Shows basic user info, plus a section for custom lists
       <!-- Overview Section -->
       <section id="overview" class="dashboard-section">
         <h1>User Dashboard</h1>
-        <!-- Only show username; removed user_info.email since we don't pass that -->
-        <p>Welcome, {{ username }}!</p>
+        
+        <!-- Flash messages for overview tab -->
+        {% if active_tab == 'overview' or not active_tab %}
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <ul class="flashes">
+                {% for category, message in messages %}
+                  <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endwith %}
+        {% endif %}
+        
+        <div class="profile-section">
+          <div class="profile-info">
+            <h2>Your Profile</h2>
+            <p>Welcome, {{ user.username }}!</p>
+            <p>Email: {{ user.email }}</p>
+          </div>
+          
+          <div class="profile-edit">
+            <h3>Edit Your Details</h3>
+            <form method="POST" action="{{ url_for('update_profile') }}">
+              <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" value="{{ user.username }}" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ user.email }}" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="current_password">Current Password (required to save changes):</label>
+                <input type="password" id="current_password" name="current_password" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="new_password">New Password (leave blank to keep current):</label>
+                <input type="password" id="new_password" name="new_password">
+              </div>
+              
+              <div class="form-group">
+                <label for="confirm_password">Confirm New Password:</label>
+                <input type="password" id="confirm_password" name="confirm_password">
+              </div>
+              
+              <button type="submit" class="btn">Save Changes</button>
+            </form>
+          </div>
+        </div>
       </section>
 
       <!-- Custom Lists Section -->
       <section id="custom-lists" class="dashboard-section">
         <h2>Your Custom Lists</h2>
-        <!-- Flash messages -->
+        
+        <!-- Flash messages for custom-lists tab -->
         {% if active_tab == 'custom-lists' %}
           {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -221,6 +310,8 @@ Shows basic user info, plus a section for custom lists
       <!-- Create New List -->
       <section id="create-list" class="dashboard-section">
         <h2>Create a New List</h2>
+        
+        <!-- Flash messages for create-list tab -->
         {% if active_tab == 'create-list' %}
           {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -232,6 +323,7 @@ Shows basic user info, plus a section for custom lists
             {% endif %}
           {% endwith %}
         {% endif %}
+        
         <form method="POST" action="/lists/create">
           <input type="text" name="list_name" placeholder="List name" required>
           <button type="submit" class="btn">Create List</button>
@@ -247,39 +339,55 @@ Shows basic user info, plus a section for custom lists
     const sidebarItems = document.querySelectorAll('.sidebar ul li');
     const sections = document.querySelectorAll('.dashboard-section');
 
-    window.addEventListener('DOMContentLoaded', () => {
-      // Mark correct item active
-      sidebarItems.forEach(item => {
-        const sectionId = item.getAttribute('data-section');
-        if (sectionId === SERVER_ACTIVE_TAB) {
-          item.classList.add('active');
-        }
-      });
+    function activateTab(tabName) {
+      // Remove active class from all items and sections
+      sidebarItems.forEach(i => i.classList.remove('active'));
+      sections.forEach(sec => sec.classList.remove('active'));
 
-      // Show corresponding section
-      const targetSection = document.getElementById(SERVER_ACTIVE_TAB);
-      if (targetSection) {
-        targetSection.classList.add('active');
+      // Add active class to selected tab and section
+      const selectedItem = Array.from(sidebarItems).find(item => item.getAttribute('data-section') === tabName);
+      if (selectedItem) {
+        selectedItem.classList.add('active');
+      }
+      const selectedSection = document.getElementById(tabName);
+      if (selectedSection) {
+        selectedSection.classList.add('active');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Activate the server-specified tab or fall back to overview
+      if (SERVER_ACTIVE_TAB) {
+        activateTab(SERVER_ACTIVE_TAB);
       } else {
-        // fallback to overview
-        document.getElementById('overview').classList.add('active');
-        sidebarItems.forEach(item => {
-          if (item.getAttribute('data-section') === 'overview') {
-            item.classList.add('active');
-          }
-        });
+        activateTab('overview');
       }
     });
 
+    // Add click handlers for sidebar items
     sidebarItems.forEach(item => {
       item.addEventListener('click', () => {
-        sidebarItems.forEach(i => i.classList.remove('active'));
-        sections.forEach(sec => sec.classList.remove('active'));
-
-        item.classList.add('active');
         const sectionId = item.getAttribute('data-section');
-        document.getElementById(sectionId).classList.add('active');
+        activateTab(sectionId);
       });
+    });
+    
+    // Password validation
+    const form = document.querySelector('form');
+    const newPassword = document.getElementById('new_password');
+    const confirmPassword = document.getElementById('confirm_password');
+    
+    form.addEventListener('submit', function(e) {
+      // Only validate if new password is being set
+      if (newPassword.value) {
+        if (newPassword.value !== confirmPassword.value) {
+          e.preventDefault();
+          alert('New passwords do not match');
+          newPassword.value = '';
+          confirmPassword.value = '';
+          newPassword.focus();
+        }
+      }
     });
   </script>
 </body>

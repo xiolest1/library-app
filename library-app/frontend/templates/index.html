@@ -8,6 +8,134 @@
   <title>Library Search</title>
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+  <style>
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .search-controls {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .search-controls select,
+    .search-controls input {
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .search-controls select {
+      min-width: 120px;
+    }
+
+    .search-controls input {
+      flex-grow: 1;
+    }
+
+    .sort-controls {
+      margin-bottom: 20px;
+    }
+
+    .sort-controls select {
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      min-width: 150px;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .book {
+      display: flex;
+      gap: 15px;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .book:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .book-cover {
+      width: 128px;
+      height: 192px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .book h3 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .book p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .pagination-controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      align-items: center;
+      margin-top: 30px;
+    }
+
+    .pagination-controls button {
+      padding: 8px 16px;
+      border: none;
+      background: #0077b6;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .pagination-controls button:hover {
+      background: #023e8a;
+    }
+
+    .image-container {
+      position: relative;
+      height: 300px;
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+
+    .library-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .overlay-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 2.5em;
+      font-weight: 600;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+  </style>
 </head>
 <body>
 
@@ -17,11 +145,15 @@
     <a href="/" class="banner-item">Home</a>
     <a href="/about" class="banner-item">About</a>
     {% if session.get('user_id') %}
-      <a href="/dashboard" class="banner-item">Dashboard</a>
-      <a href="/logout" class="banner-item">Logout</a>
+        {% if session.get('is_admin') %}
+            <a href="{{ url_for('admin_dashboard') }}" class="banner-item">Dashboard</a>
+        {% else %}
+            <a href="{{ url_for('user_dashboard') }}" class="banner-item">Dashboard</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}" class="banner-item">Logout</a>
     {% else %}
-      <a href="/login" class="banner-item">Login</a>
-      <a href="/register" class="banner-item">Register</a>
+        <a href="{{ url_for('login') }}" class="banner-item">Login</a>
+        <a href="{{ url_for('register') }}" class="banner-item">Register</a>
     {% endif %}
   </nav>
 
@@ -31,7 +163,6 @@
     <div class="overlay-text">Discover. Learn. Explore.</div>
   </div>
 
-  <!-- Main contaner for the search interface -->
   <div class="container">
     <h1>Library Search</h1>
     <div class="search-controls">
@@ -44,7 +175,6 @@
       <input type="text" id="searchInput" placeholder="Search books...">
     </div>
 
-    <!-- Sort dropdown to reorder the search results-->
     <div class="sort-controls">
       <select id="sortSelect">
         <option value="">-- Sort By --</option>
@@ -56,13 +186,10 @@
       </select>
     </div>
 
-    <!-- Displays the results grid-->
     <div id="results" class="results-grid"></div>
-    <!-- Pagination-->
     <div id="pagination" class="pagination-controls"></div>
   </div>
 
-  <!-- Handles real-time search, sorting, pagination-->
   <script>
     const criteriaSelect = document.getElementById('criteriaSelect');
     const sortSelect = document.getElementById('sortSelect');
@@ -70,11 +197,10 @@
     const resultsDiv = document.getElementById('results');
     const paginationDiv = document.getElementById('pagination');
 
-    let allBooks = []; // Stores full search results
-    let currentPage = 1; // Current page
-    const itemsPerPage = 25; // Number of books per page
+    let allBooks = [];
+    let currentPage = 1;
+    const itemsPerPage = 25;
 
-    // Debounce function to limit API calls
     function debounce(func, wait) {
       let timeout;
       return function executedFunction(...args) {
@@ -87,13 +213,18 @@
       };
     }
 
-    // Search function that will be debounced
     async function performSearch(query, criteria) {
       if (query.length > 0) {
-        const response = await fetch(`/search?q=${encodeURIComponent(query)}&criteria=${encodeURIComponent(criteria)}`);
-        allBooks = await response.json();
-        currentPage = 1;
-        renderPage();
+        try {
+          const response = await fetch(`/search?q=${encodeURIComponent(query)}&criteria=${encodeURIComponent(criteria)}`);
+          const data = await response.json();
+          allBooks = data;
+          currentPage = 1;
+          renderPage();
+        } catch (error) {
+          console.error('Search failed:', error);
+          resultsDiv.innerHTML = '<div class="error">Search failed. Please try again.</div>';
+        }
       } else {
         resultsDiv.innerHTML = '';
         clearPagination();
@@ -101,55 +232,70 @@
       }
     }
 
-    // Create debounced version of performSearch with 300ms delay
     const debouncedSearch = debounce(performSearch, 300);
 
-    // Modified event listener using debounced search
     searchInput.addEventListener('input', (e) => {
       const query = e.target.value.trim();
       const criteria = criteriaSelect.value;
       debouncedSearch(query, criteria);
     });
 
-    // Change sort order
     sortSelect.addEventListener('change', () => {
       const sortBy = sortSelect.value;
       if (sortBy === "date") {
-        allBooks.sort((a, b) => a.year - b.year);
+        allBooks.sort((a, b) => (a.year || 0) - (b.year || 0));
       } else if (sortBy === "title") {
         allBooks.sort((a, b) => a.title.localeCompare(b.title));
       } else if (sortBy === "pages") {
-        allBooks.sort((a, b) => a.pages - b.pages);
+        allBooks.sort((a, b) => (a.pages || 0) - (b.pages || 0));
       } else if (sortBy === "rating") {
-        allBooks.sort((a, b) => a.ratings_average - b.ratings_average);
+        allBooks.sort((a, b) => (a.ratings_average || 0) - (b.ratings_average || 0));
       } else if (sortBy === "editions") {
-        allBooks.sort((a, b) => a.edition_count - b.edition_count);
+        allBooks.sort((a, b) => (a.edition_count || 0) - (b.edition_count || 0));
       }
       currentPage = 1;
       renderPage();
     });
 
-    // Display the current page of results
     function renderPage() {
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
+      
+      // Sort books to prioritize title matches with the search query
+      const searchQuery = searchInput.value.toLowerCase().trim();
+      if (searchQuery && criteriaSelect.value === 'title') {
+        allBooks.sort((a, b) => {
+          const aTitle = a.title.toLowerCase();
+          const bTitle = b.title.toLowerCase();
+          // Exact matches first
+          if (aTitle === searchQuery && bTitle !== searchQuery) return -1;
+          if (bTitle === searchQuery && aTitle !== searchQuery) return 1;
+          // Contains matches next
+          if (aTitle.includes(searchQuery) && !bTitle.includes(searchQuery)) return -1;
+          if (bTitle.includes(searchQuery) && !aTitle.includes(searchQuery)) return 1;
+          // Default to alphabetical
+          return aTitle.localeCompare(bTitle);
+        });
+      }
+      
       const pageBooks = allBooks.slice(startIndex, endIndex);
       resultsDiv.innerHTML = pageBooks.map(book => {
         const coverUrl = book.cover_i
           ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
           : 'https://via.placeholder.com/128x192?text=No+Cover';
+        const workId = book.key.split('/').pop();
         return `
-          <a href="/book${book.key}" style="text-decoration: none; color: inherit;">
+          <a href="/book/works/${workId}" style="text-decoration: none; color: inherit;">
             <div class="book">
-              <img src="${coverUrl}" alt="Book Cover" class="book-cover">
               <div>
                 <h3>${book.title}</h3>
-                <p>Author: ${book.author}</p>
+                <p>Author: ${book.author || 'Unknown'}</p>
                 ${book.year ? `<p>Year: ${book.year}</p>` : ''}
                 ${book.pages ? `<p>Pages: ${book.pages}</p>` : ''}
-                ${book.ratings_average ? `<p>Rating: ${book.ratings_average}</p>` : ''}
+                ${book.ratings_average ? `<p>Rating: ${book.ratings_average.toFixed(1)}</p>` : ''}
                 ${book.edition_count ? `<p>Editions: ${book.edition_count}</p>` : ''}
               </div>
+              <img src="${coverUrl}" alt="Book Cover" class="book-cover">
             </div>
           </a>
         `;
@@ -157,7 +303,6 @@
       renderPaginationControls();
     }
 
-    // Add "previous" & "next" buttons
     function renderPaginationControls() {
       const totalPages = Math.ceil(allBooks.length / itemsPerPage);
       let paginationHTML = "";
@@ -186,7 +331,6 @@
       }
     }
 
-    // When no results, clears pagintation controls
     function clearPagination() {
       paginationDiv.innerHTML = "";
     }

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - Library Search</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 100px auto 30px;
+      padding: 20px;
+    }
+    .admin-section {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    .page-title {
+      color: #2c3e50;
+      margin-bottom: 30px;
+      font-size: 2.2em;
+      font-weight: 600;
+    }
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .admin-card {
+      background: #f8f9fa;
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid #e9ecef;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .admin-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+    .admin-card h3 {
+      margin: 0 0 20px 0;
+      color: #0077b6;
+      font-size: 1.5em;
+      font-weight: 600;
+    }
+    .admin-card p {
+      color: #495057;
+      font-size: 1.1em;
+      margin: 0 0 20px 0;
+    }
+    .admin-card .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #0077b6;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background-color 0.2s;
+      font-weight: 500;
+    }
+    .admin-card .btn:hover {
+      background-color: #023e8a;
+    }
+    .stats-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .stats-icon {
+      width: 40px;
+      height: 40px;
+      background: #e3f2fd;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+    }
+    .stats-info {
+      flex-grow: 1;
+    }
+    .stats-number {
+      font-size: 1.8em;
+      font-weight: 600;
+      color: #0077b6;
+      margin: 0;
+    }
+    .stats-label {
+      color: #6c757d;
+      margin: 5px 0 0 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 25px;
+      background: white;
+    }
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #e9ecef;
+    }
+    th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: #495057;
+    }
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+    .activity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .activity-header h2 {
+      color: #2c3e50;
+      margin: 0;
+    }
+    .flashes {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 25px;
+    }
+    .flashes li {
+      padding: 12px 20px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .flashes li.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .flashes li.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+  <nav class="banner">
+    <a href="/"><img src="/static/logo.png" alt="Library Logo" class="logo"></a>
+    <a href="/admin/dashboard" class="banner-item active">Dashboard</a>
+    <a href="/admin/users" class="banner-item">Users</a>
+    <a href="/admin/books" class="banner-item">Books</a>
+    <a href="/logout" class="banner-item">Logout</a>
+  </nav>
+
+  <div class="admin-container">
+    <h1 class="page-title">Admin Dashboard</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <div class="admin-grid">
+      <div class="admin-card">
+        <h3>User Management</h3>
+        <div class="stats-container">
+          <div class="stats-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="#0077b6"/>
+            </svg>
+          </div>
+          <div class="stats-info">
+            <p class="stats-number">{{ user_count }}</p>
+            <p class="stats-label">Total Users</p>
+          </div>
+        </div>
+        <p>Manage user accounts, roles, and permissions</p>
+        <a href="{{ url_for('admin_users') }}" class="btn">Manage Users</a>
+      </div>
+      
+      <div class="admin-card">
+        <h3>Book Management</h3>
+        <div class="stats-container">
+          <div class="stats-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2ZM6 4H11V12L8.5 10.5L6 12V4Z" fill="#0077b6"/>
+            </svg>
+          </div>
+          <div class="stats-info">
+            <p class="stats-number">{{ book_count }}</p>
+            <p class="stats-label">Total Books</p>
+          </div>
+        </div>
+        <p>Add, edit, or remove books from the library</p>
+        <a href="{{ url_for('admin_books') }}" class="btn">Manage Books</a>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="activity-header">
+        <h2>Recent Activity</h2>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Action</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for activity in recent_activity %}
+            <tr>
+              <td>{{ activity.date }}</td>
+              <td>{{ activity.action }}</td>
+              <td>{{ activity.details }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html> 

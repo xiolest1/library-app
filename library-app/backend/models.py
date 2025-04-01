@@ -44,13 +44,11 @@ class Book(db.Model):
     __tablename__ = 'books'
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    author = db.Column(db.String(255), nullable=True)
-    cover_url = db.Column(db.String(255), nullable=True)
-    isbn = db.Column(db.String(50), nullable=True)
-
-    # The user who added the book (if a librarian or admin).
+    title = db.Column(db.String(200), nullable=False)
+    author = db.Column(db.String(200), nullable=False)
+    isbn = db.Column(db.String(13))
     added_by_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return f"<Book {self.title} by {self.author}>"

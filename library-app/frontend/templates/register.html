@@ -5,53 +5,257 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register - Library Search</title>
   <link rel="stylesheet" href="/static/style.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
+  <style>
+    /* Reset CSS */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #f5f7fa;
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .page-container {
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .register-container {
+      width: 100%;
+      max-width: 480px;
+      margin: 60px auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      padding: 32px;
+    }
+
+    .register-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .register-header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 8px;
+    }
+
+    .register-header p {
+      color: #718096;
+      font-size: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #4a5568;
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      height: 48px;
+      padding: 0 16px;
+      font-size: 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      background: white;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #4299e1;
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .btn {
+      flex: 1;
+      height: 48px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background-color: #4299e1;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #3182ce;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background-color: #edf2f7;
+      color: #4a5568;
+    }
+
+    .btn-secondary:hover {
+      background-color: #e2e8f0;
+      transform: translateY(-1px);
+    }
+
+    .flashes {
+      list-style: none;
+      margin-bottom: 24px;
+    }
+
+    .flashes li {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .flashes li.success {
+      background-color: #c6f6d5;
+      color: #2f855a;
+      border: 1px solid #9ae6b4;
+    }
+
+    .flashes li.error {
+      background-color: #fed7d7;
+      color: #c53030;
+      border: 1px solid #feb2b2;
+    }
+  </style>
 </head>
 <body>
-  <nav class="banner">
-    <a href="/"><img src="/static/logo.png" alt="Library Logo" class="logo"></a>
-    <a href="/" class="banner-item">Home</a>
-    <a href="/about" class="banner-item">About</a>
-    {% if session.get('user_id') %}
-      <a href="/dashboard" class="banner-item">Dashboard</a>
-      <a href="/logout" class="banner-item">Logout</a>
-    {% else %}
+  <div class="page-container">
+    <!-- Navigation -->
+    <nav class="banner">
+      <a href="/"><img src="/static/logo.png" alt="Library Logo" class="logo"></a>
+      <a href="/" class="banner-item">Home</a>
+      <a href="/about" class="banner-item">About</a>
       <a href="/login" class="banner-item">Login</a>
-      <a href="/register" class="banner-item">Register</a>
-    {% endif %}
-  </nav>
+    </nav>
 
-  <div class="image-container">
-    <img src="/static/img0.png" alt="Library Image" class="library-image">
-    <div class="overlay-text">Register</div>
+    <!-- Registration Form -->
+    <div class="register-container">
+      <div class="register-header">
+        <h1>Create Account</h1>
+        <p>Join our library community today</p>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="flashes">
+            {% for category, message in messages %}
+              <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('register') }}">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            required 
+            autocomplete="username"
+            placeholder="Choose a username"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            required 
+            autocomplete="email"
+            placeholder="Enter your email"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            required 
+            autocomplete="new-password"
+            placeholder="Create a password"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password">Confirm Password</label>
+          <input 
+            type="password" 
+            id="confirm_password" 
+            name="confirm_password" 
+            required 
+            autocomplete="new-password"
+            placeholder="Confirm your password"
+          >
+        </div>
+
+        <div class="button-group">
+          <a href="/login" class="btn btn-secondary">Back to Login</a>
+          <button type="submit" class="btn btn-primary">Create Account</button>
+        </div>
+      </form>
+    </div>
   </div>
 
-  <div class="container">
-    <h1>Register here</h1>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="flashes">
-          {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-    <form method="POST" action="/register">
-      <div>
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-      </div>
-      <div>
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-      </div>
-      <div>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-      </div>
-      <button type="submit">Register</button>
-    </form>
-  </div>
+  <!-- Add this right before the closing </body> tag -->
+  <script>
+    const form = document.querySelector('form');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+
+    // Only check passwords on form submission
+    form.addEventListener('submit', function(e) {
+        if (password.value !== confirmPassword.value) {
+            e.preventDefault();
+            // Create and add flash message
+            const flashContainer = document.querySelector('.flashes') || document.createElement('ul');
+            flashContainer.className = 'flashes';
+            flashContainer.innerHTML = '<li class="error">Passwords do not match</li>';
+            
+            // Insert flash message at the top of the form
+            const registerHeader = document.querySelector('.register-header');
+            if (!document.querySelector('.flashes')) {
+                registerHeader.insertAdjacentElement('afterend', flashContainer);
+            }
+            
+            // Clear password fields
+            password.value = '';
+            confirmPassword.value = '';
+        }
+    });
+  </script>
 </body>
 </html>

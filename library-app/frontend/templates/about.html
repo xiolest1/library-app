@@ -5,46 +5,166 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About - Library Search</title>
   <link rel="stylesheet" href="/static/style.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
+  <style>
+    .about-container {
+      max-width: 1000px;
+      margin: 100px auto 30px;
+      padding: 0 20px;
+    }
+    .hero-section {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    .hero-section h1 {
+      font-size: 2.5em;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    .hero-section p {
+      font-size: 1.2em;
+      color: #6c757d;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+    .feature-card {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+    .feature-icon {
+      width: 50px;
+      height: 50px;
+      background: #e3f2fd;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .feature-card h3 {
+      color: #2c3e50;
+      margin: 0 0 15px 0;
+      font-size: 1.3em;
+    }
+    .feature-card p {
+      color: #6c757d;
+      margin: 0;
+      line-height: 1.6;
+    }
+    .contact-section {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .contact-section h2 {
+      color: #2c3e50;
+      margin: 0 0 20px 0;
+      text-align: center;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+    }
+    .contact-item {
+      text-align: center;
+    }
+    .contact-item h4 {
+      color: #0077b6;
+      margin: 0 0 10px 0;
+    }
+    .contact-item p {
+      color: #6c757d;
+      margin: 0;
+    }
+  </style>
 </head>
 <body>
   <nav class="banner">
     <a href="/"><img src="/static/logo.png" alt="Library Logo" class="logo"></a>
     <a href="/" class="banner-item">Home</a>
-    <a href="/about" class="banner-item">About</a>
+    <a href="/about" class="banner-item active">About</a>
     {% if session.get('user_id') %}
-      <a href="/dashboard" class="banner-item">Dashboard</a>
+      {% if session.get('is_admin') %}
+        <a href="/admin/dashboard" class="banner-item">Dashboard</a>
+      {% else %}
+        <a href="/dashboard" class="banner-item">Dashboard</a>
+      {% endif %}
       <a href="/logout" class="banner-item">Logout</a>
     {% else %}
       <a href="/login" class="banner-item">Login</a>
-      <a href="/register" class="banner-item">Register</a>
     {% endif %}
   </nav>
 
-  <div class="image-container">
-    <img src="/static/img0.png" alt="Library Image" class="library-image">
-    <div class="overlay-text">About us</div>
-  </div>
+  <div class="about-container">
+    <div class="hero-section">
+      <h1>About Our Library</h1>
+      <p>Welcome to our digital library platform, where knowledge meets innovation. We're dedicated to making literature accessible to everyone, anywhere, anytime.</p>
+    </div>
 
-  <div class="container">
-    <h1>About Library Search</h1>
-    <p>
-      Our Library Search platform helps you find books and resources easily. 
-      We aim to provide quick access to information and make learning more convenient. 
-      Explore our collection and discover new knowledge today.
-    </p>
-    <p>
-      With a user-friendly interface, you can search for books by title, author, subject, or ISBN. 
-      Our goal is to provide quick access to information and make learning more convenient and enjoyable for everyone.
-    </p>
-    <p>
-      Explore our collection, learn something new, and enhance your knowledge today. 
-      Join our community of learners and discover a world of information at your fingertips.
-    </p>
-    <p>
-      This application uses the Open Library API to search for books by Title, Author, Subject, or ISBN.
-      It is built with Flask and demonstrates real-time search along with basic user functions.
-    </p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#0077b6">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"/>
+          </svg>
+        </div>
+        <h3>Vast Collection</h3>
+        <p>Access millions of books, articles, and resources from our extensive digital library collection.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#0077b6">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-4h2v2h-2zm1.61-9.96c-2.06-.3-3.88.97-4.43 2.79-.18.58.26 1.17.87 1.17h.2c.41 0 .74-.29.88-.67.32-.89 1.27-1.5 2.3-1.28.95.2 1.65 1.13 1.57 2.1-.1 1.34-1.62 1.63-2.45 2.88 0 .01-.01.01-.01.02-.01.02-.02.03-.03.05-.09.15-.18.32-.25.5-.01.03-.03.05-.04.08-.01.02-.01.04-.02.07-.12.34-.2.75-.2 1.25h2c0-.42.11-.77.28-1.07.02-.03.03-.06.05-.09.08-.14.18-.27.28-.39.01-.01.02-.03.03-.04.1-.12.21-.23.33-.34.96-.91 2.26-1.65 1.99-3.56-.24-1.74-1.61-3.21-3.35-3.47z"/>
+          </svg>
+        </div>
+        <h3>Easy Search</h3>
+        <p>Find exactly what you're looking for with our powerful and intuitive search system.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#0077b6">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM17.99 9l-1.41-1.42-6.59 6.59-2.58-2.57-1.42 1.41 4 3.99z"/>
+          </svg>
+        </div>
+        <h3>Personal Lists</h3>
+        <p>Create and manage your own reading lists to organize your favorite books.</p>
+      </div>
+    </div>
+
+    <div class="contact-section">
+      <h2>Contact Us</h2>
+      <div class="contact-grid">
+        <div class="contact-item">
+          <h4>Email</h4>
+          <p>support@library.com</p>
+        </div>
+        <div class="contact-item">
+          <h4>Phone</h4>
+          <p>+1 (555) 123-4567</p>
+        </div>
+        <div class="contact-item">
+          <h4>Hours</h4>
+          <p>24/7 Online Access</p>
+        </div>
+      </div>
+    </div>
   </div>
 </body>
 </html>

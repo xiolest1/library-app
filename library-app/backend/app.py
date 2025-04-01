@@ -4,6 +4,8 @@ import requests
 from datetime import datetime
 from models import db, User, Book, List, ListItem
 from werkzeug.security import generate_password_hash, check_password_hash
+from urllib.parse import quote
+from functools import wraps
 
 ###############################################################################
 # FLASK APP + DB CONFIG
@@ -27,17 +29,15 @@ def current_user():
     return None
 
 def login_required(f):
-    from functools import wraps
     @wraps(f)
-    def wrapper(*args, **kwargs):
-        if not current_user():
-            flash('Please log in first.', 'error')
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Please log in to access this page.', 'error')
             return redirect(url_for('login'))
         return f(*args, **kwargs)
-    return wrapper
+    return decorated_function
 
 def role_required(*roles):
-    from functools import wraps
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
@@ -89,6 +89,31 @@ def process_api_response(data):
         })
     return results
 
+def clean_subjects(subjects):
+    if not subjects:
+        return []
+    
+    # Remove duplicates and sort
+    unique_subjects = list(set(subjects))
+    
+    # Filter out unwanted prefixes and specific terms
+    unwanted_prefixes = ['nyt:', 'SOCIAL SCIENCE /', 'BIOGRAPHY & AUTOBIOGRAPHY /', 'PSYCHOLOGY /']
+    filtered_subjects = []
+    
+    for subject in unique_subjects:
+        # Skip if subject starts with unwanted prefix
+        if any(subject.startswith(prefix) for prefix in unwanted_prefixes):
+            continue
+        
+        # Skip specific unwanted terms
+        if subject in ['NEW LIST 20110630', 'New York Times bestseller', 'New York Times reviewed']:
+            continue
+        
+        # Capitalize first letter of each word and add to filtered list
+        filtered_subjects.append(subject.title())
+    
+    # Sort alphabetically
+    return sorted(filtered_subjects)
 
 ###############################################################################
 # ROUTES
@@ -96,7 +121,47 @@ def process_api_response(data):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    query = request.args.get('q', '')
+    criteria = request.args.get('criteria', 'title')
+    results = None
+
+    if query:
+        encoded_query = quote(query)
+        search_url = f"https://openlibrary.org/search.json?q={encoded_query}"
+        
+        if criteria == 'author':
+            search_url += "&type=author"
+        elif criteria == 'subject':
+            search_url += "&subject="
+        
+        try:
+            r = requests.get(search_url)
+            r.raise_for_status()
+            results = r.json()
+            
+            # Process and organize the results
+            processed_results = []
+            
+            for doc in results.get('docs', []):
+                book = {
+                    'key': doc.get('key', ''),
+                    'title': doc.get('title', 'Unknown Title'),
+                    'author_name': doc.get('author_name', ['Unknown Author'])[0] if doc.get('author_name') else 'Unknown Author',
+                    'first_publish_year': doc.get('first_publish_year', 'Year unknown'),
+                    'cover_i': doc.get('cover_i')
+                }
+                processed_results.append(book)
+            
+            # Sort results: books with covers first
+            books_with_covers = [book for book in processed_results if book['cover_i']]
+            books_without_covers = [book for book in processed_results if not book['cover_i']]
+            results = {'docs': books_with_covers + books_without_covers}
+            
+        except requests.RequestException as e:
+            print(f"Search API error: {e}")
+            results = {'docs': []}
+
+    return render_template('index.html', results=results)
 
 @app.route('/about')
 def about():
@@ -129,25 +194,32 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
+        # Set up session for new user
         session['user_id'] = new_user.id
+        session['is_admin'] = False  # Explicitly set is_admin to False for new users
         flash('Registration successful! You are logged in.', 'success')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('user_dashboard'))
     return render_template('register.html')
 
-@app.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method=='POST':
-        username = request.form.get('username','').strip()
-        password = request.form.get('password','').strip()
-
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
         user = User.query.filter_by(username=username).first()
+        
         if user and user.check_password(password):
             session['user_id'] = user.id
-            flash('Logged in successfully.', 'success')
-            return redirect(url_for('dashboard'))
-        else:
-            flash('Invalid username or password.', 'error')
-            return redirect(url_for('login'))
+            session['is_admin'] = (user.role == 'admin')
+            
+            # Redirect based on user type
+            if user.role == 'admin':
+                return redirect(url_for('admin_dashboard'))
+            else:
+                return redirect(url_for('user_dashboard'))
+                
+        flash('Invalid username or password', 'error')
     return render_template('login.html')
 
 @app.route('/logout')
@@ -162,12 +234,55 @@ def logout():
 # ------------------------------
 @app.route('/search')
 def search():
-    q = request.args.get('q','')
-    if not q:
+    query = request.args.get('q', '')
+    criteria = request.args.get('criteria', 'title')
+    
+    if not query:
         return jsonify([])
-    criteria = request.args.get('criteria','title')
-    results = perform_search(q, criteria)
-    return jsonify(results)
+
+    # URL encode the query for the API request
+    encoded_query = quote(query)
+    search_url = f"https://openlibrary.org/search.json?q={encoded_query}"
+    
+    # Add criteria to search URL
+    if criteria == 'author':
+        search_url += "&type=author"
+    elif criteria == 'subject':
+        search_url += "&subject="
+    elif criteria == 'isbn':
+        search_url += "&type=isbn"
+    
+    try:
+        r = requests.get(search_url)
+        r.raise_for_status()
+        results = r.json()
+        
+        # Process and organize the results
+        processed_results = []
+        
+        for doc in results.get('docs', []):
+            book = {
+                'key': doc.get('key', ''),
+                'title': doc.get('title', 'Unknown Title'),
+                'author': ", ".join(doc.get('author_name', ['Unknown Author'])) if doc.get('author_name') else 'Unknown Author',
+                'year': doc.get('first_publish_year'),
+                'cover_i': doc.get('cover_i'),
+                'pages': doc.get('number_of_pages_median'),
+                'edition_count': doc.get('edition_count'),
+                'ratings_average': doc.get('ratings_average')
+            }
+            processed_results.append(book)
+        
+        # Sort results: books with covers first
+        books_with_covers = [book for book in processed_results if book['cover_i']]
+        books_without_covers = [book for book in processed_results if not book['cover_i']]
+        sorted_results = books_with_covers + books_without_covers
+        
+        return jsonify(sorted_results)
+    
+    except requests.RequestException as e:
+        print(f"Search API error: {e}")
+        return jsonify([])
 
 
 # ------------------------------
@@ -175,41 +290,37 @@ def search():
 # ------------------------------
 @app.route('/dashboard')
 @login_required
-def dashboard():
-    """
-    Show user's lists. Each list can show its items (books).
-    """
-    user = current_user()
-    user_lists = List.query.filter_by(user_id=user.id).all()
+def user_dashboard():  # Regular user dashboard
+    if session.get('is_admin'):
+        return redirect(url_for('admin_dashboard'))
+    
+    user = User.query.get(session['user_id'])
+    user_lists = List.query.filter_by(user_id=session['user_id']).all()
+    
+    # Get the active tab from query parameter
     active_tab = request.args.get('tab', 'overview')
-    # pass 'lists' and any other data
-    return render_template(
-        'dashboard.html',
-        username=user.username,
-        user_info=user,
-        lists=user_lists,
-        active_tab=active_tab
-    )
+    
+    return render_template('dashboard.html', 
+                          user=user, 
+                          lists=user_lists, 
+                          active_tab=active_tab)
 
 
 # CREATE A NEW LIST
 @app.route('/lists/create', methods=['POST'])
 @login_required
 def create_list():
-    """
-    Create new list, then redirect to 'create-list' tab.
-    """
     name = request.form.get('list_name','').strip()
     if not name:
         flash('List name required.', 'error')
-        return redirect(url_for('dashboard', tab='create-list'))
+        return redirect(url_for('user_dashboard', tab='create-list'))
 
     new_list = List(name=name, user_id=current_user().id)
     db.session.add(new_list)
     db.session.commit()
 
     flash(f"List '{name}' created!", 'success')
-    return redirect(url_for('dashboard', tab='create-list'))
+    return redirect(url_for('user_dashboard', tab='custom-lists'))  # Show in the lists tab after creation
 
 
 # RENAME A LIST
@@ -219,17 +330,17 @@ def rename_list(list_id):
     the_list = List.query.get_or_404(list_id)
     if the_list.user_id != current_user().id:
         flash("You don't own this list!", 'error')
-        return redirect(url_for('dashboard', tab='custom-lists'))
+        return redirect(url_for('user_dashboard', tab='custom-lists'))
 
     new_name = request.form.get('new_name','').strip()
     if not new_name:
         flash("List name can't be empty.", 'error')
-        return redirect(url_for('dashboard', tab='custom-lists'))
+        return redirect(url_for('user_dashboard', tab='custom-lists'))
 
     the_list.name = new_name
     db.session.commit()
     flash("List renamed.", 'success')
-    return redirect(url_for('dashboard', tab='custom-lists'))
+    return redirect(url_for('user_dashboard', tab='custom-lists'))
 
 
 # DELETE AN ENTIRE LIST
@@ -239,12 +350,12 @@ def delete_list(list_id):
     the_list = List.query.get_or_404(list_id)
     if the_list.user_id != current_user().id:
         flash("You don't own this list!", 'error')
-        return redirect(url_for('dashboard', tab='custom-lists'))
+        return redirect(url_for('user_dashboard', tab='custom-lists'))
 
     db.session.delete(the_list)
     db.session.commit()
     flash("List deleted.", 'success')
-    return redirect(url_for('dashboard', tab='custom-lists'))
+    return redirect(url_for('user_dashboard', tab='custom-lists'))
 
 
 # REMOVE A SINGLE ITEM (BOOK) FROM A LIST
@@ -254,17 +365,17 @@ def remove_list_item(list_id, item_id):
     the_list = List.query.get_or_404(list_id)
     if the_list.user_id != current_user().id:
         flash("You don't own this list!", 'error')
-        return redirect(url_for('dashboard', tab='custom-lists'))
+        return redirect(url_for('user_dashboard', tab='custom-lists'))
 
     item = ListItem.query.get_or_404(item_id)
     if item.list_id != list_id:
         flash("That item is not in this list!", 'error')
-        return redirect(url_for('dashboard', tab='custom-lists'))
+        return redirect(url_for('user_dashboard', tab='custom-lists'))
 
     db.session.delete(item)
     db.session.commit()
     flash("Removed book from list.", 'success')
-    return redirect(url_for('dashboard', tab='custom-lists'))
+    return redirect(url_for('user_dashboard', tab='custom-lists'))
 
 
 # ADD A BOOK TO A LIST
@@ -302,109 +413,270 @@ def add_to_list():
 # ------------------------------
 # BOOK DETAIL
 # ------------------------------
-@app.route('/book/<path:work_key>')
+@app.route('/book/works/<work_key>')
 def book_detail(work_key):
-    """
-    Display a single Open Library book detail with 'Add to list' if logged in.
-    """
-    work_url = f"https://openlibrary.org/{work_key}.json"
+    work_url = f"https://openlibrary.org/works/{work_key}.json"
     r = requests.get(work_url)
     if r.status_code != 200:
         return "Book details not found", 404
 
-    work_data = r.json()
+    book = r.json()
+    
+    # Get author details including photo
+    author_data = None
+    if 'authors' in book and book['authors']:
+        author_key = book['authors'][0]['author']['key']
+        author_url = f"https://openlibrary.org{author_key}.json"
+        author_response = requests.get(author_url)
+        if author_response.status_code == 200:
+            author_data = author_response.json()
+            if 'bio' in author_data:
+                author_data['bio'] = author_data['bio']['value'] if isinstance(author_data['bio'], dict) else author_data['bio']
 
-    # fetch authors
-    authors = []
-    other_works = []
-    if "authors" in work_data:
-        for author_obj in work_data["authors"]:
-            author_key = author_obj["author"]["key"]
-            author_url = f"https://openlibrary.org{author_key}.json"
-            ra = requests.get(author_url)
-            if ra.status_code == 200:
-                authors.append(ra.json())
+    # Clean up book description
+    if 'description' in book:
+        book['description'] = book['description']['value'] if isinstance(book['description'], dict) else book['description']
 
-        # fetch other works by the first author
-        if authors:
-            first_author_key = authors[0]["key"].split("/")[-1]
-            works_url = f"https://openlibrary.org/authors/{first_author_key}/works.json"
-            wr = requests.get(works_url)
-            if wr.status_code == 200:
-                data = wr.json()
-                other_works = data.get("entries", [])
+    # Get author's other works
+    author_works = []
+    if 'authors' in book and book['authors']:
+        author_works_url = f"https://openlibrary.org{author_key}/works.json"
+        author_works_response = requests.get(author_works_url)
+        
+        if author_works_response.status_code == 200:
+            works_data = author_works_response.json().get('entries', [])
+            author_works = [
+                {
+                    'key': w['key'].replace('/works/', ''),
+                    'title': w.get('title', ''),
+                    'cover_id': w.get('covers', [None])[0]
+                }
+                for w in works_data 
+                if w['key'] != f"/works/{work_key}" and 'covers' in w and w['covers']
+            ][:12]  # Limit to 12 related works
 
-    # if user is logged in, pass their lists so they can pick which list to add
-    user_lists = []
-    if current_user():
-        user_lists = List.query.filter_by(user_id=current_user().id).all()
+    # Only get user lists if the user is logged in and is not an admin
+    user_lists = None
+    if 'user_id' in session and not session.get('is_admin'):
+        user_lists = List.query.filter_by(user_id=session['user_id']).all()
 
     return render_template(
         'book.html',
-        work=work_data,
-        authors=authors,
-        other_works=other_works,
-        user_lists=user_lists  # so the template can show a dropdown
+        book=book,
+        author=author_data,
+        author_works=author_works,
+        user_lists=user_lists
     )
 
 # ------------------------------
 # ADMIN
 # ------------------------------
-@app.route('/admin/users')
-@login_required
-@role_required('admin')
-def admin_users():
-    all_users = User.query.all()
-    return render_template('admin/users.html', users=all_users)
-
-@app.route('/admin/users/edit/<int:user_id>', methods=['GET','POST'])
-@login_required
-@role_required('admin')
-def edit_user(user_id):
-    the_user = User.query.get_or_404(user_id)
-    if request.method=='POST':
-        the_user.username = request.form.get('username', the_user.username)
-        the_user.email = request.form.get('email', the_user.email)
-        the_user.role = request.form.get('role', the_user.role)
-        db.session.commit()
-        flash('User updated.', 'success')
-        return redirect(url_for('admin_users'))
-    return render_template('admin/edit_user.html', user=the_user)
-
-@app.route('/admin/users/delete/<int:user_id>')
-@login_required
-@role_required('admin')
-def delete_user(user_id):
-    the_user = User.query.get_or_404(user_id)
-    db.session.delete(the_user)
-    db.session.commit()
-    flash('User deleted.', 'success')
-    return redirect(url_for('admin_users'))
-
 @app.route('/admin/books')
 @login_required
 @role_required('admin')
 def admin_books():
-    all_books = Book.query.all()
-    return render_template('admin/books.html', books=all_books)
+    books = Book.query.all()
+    return render_template('admin/admin_books.html', books=books)
 
-@app.route('/admin/books/edit/<int:book_id>', methods=['GET','POST'])
+@app.route('/admin/users')
 @login_required
 @role_required('admin')
-def edit_book(book_id):
-    the_book = Book.query.get_or_404(book_id)
-    if request.method=='POST':
-        the_book.title = request.form.get('title', the_book.title)
-        the_book.author = request.form.get('author', the_book.author)
+def admin_users():
+    users = User.query.all()
+    return render_template('admin/admin_users.html', users=users)
+
+@app.route('/admin/books/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def admin_edit_book(id):
+    book = Book.query.get_or_404(id)
+    if request.method == 'POST':
+        book.title = request.form.get('title', '').strip()
+        book.author = request.form.get('author', '').strip()
+        book.isbn = request.form.get('isbn', '').strip()
+        
+        if not book.title or not book.author:
+            flash('Title and author are required.', 'error')
+            return render_template('admin/admin_edit_book.html', book=book)
+        
         db.session.commit()
-        flash('Book updated.', 'success')
+        flash('Book updated successfully.', 'success')
         return redirect(url_for('admin_books'))
-    return render_template('admin/edit_book.html', book=the_book)
+    return render_template('admin/admin_edit_book.html', book=book)
+
+@app.route('/admin/users/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def admin_edit_user(id):
+    user = User.query.get_or_404(id)
+    if request.method == 'POST':
+        user.username = request.form.get('username', user.username)
+        user.email = request.form.get('email', user.email)
+        user.role = request.form.get('role', user.role)
+        
+        # Handle password change
+        new_password = request.form.get('new_password')
+        if new_password:
+            confirm_password = request.form.get('confirm_password')
+            if new_password != confirm_password:
+                flash('Passwords do not match!', 'error')
+                return render_template('admin/admin_edit_user.html', user=user)
+            user.set_password(new_password)
+            flash('Password updated successfully.', 'success')
+        
+        db.session.commit()
+        flash('User updated successfully.', 'success')
+        return redirect(url_for('admin_users'))
+    return render_template('admin/admin_edit_user.html', user=user)
+
+@app.route('/admin/books/add', methods=['POST'])
+@login_required
+@role_required('admin')
+def add_book():
+    title = request.form.get('title', '').strip()
+    author = request.form.get('author', '').strip()
+    isbn = request.form.get('isbn', '').strip()
+    
+    if not title or not author:
+        flash('Title and author are required.', 'error')
+        return redirect(url_for('admin_books'))
+    
+    new_book = Book(
+        title=title,
+        author=author,
+        isbn=isbn,
+        added_by_id=current_user().id
+    )
+    db.session.add(new_book)
+    db.session.commit()
+    
+    flash('Book added successfully.', 'success')
+    return redirect(url_for('admin_books'))
+
+@app.route('/admin/books/delete/<int:book_id>', methods=['POST'])
+@login_required
+@role_required('admin')
+def delete_book(book_id):
+    book = Book.query.get_or_404(book_id)
+    db.session.delete(book)
+    db.session.commit()
+    flash('Book deleted successfully.', 'success')
+    return redirect(url_for('admin_books'))
+
+# ------------------------------
+# ADMIN AUTH
+# ------------------------------
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
+
+        user = User.query.filter_by(username=username, role='admin').first()
+        if user and user.check_password(password):
+            session['user_id'] = user.id
+            session['is_admin'] = True
+            flash('Logged in as administrator.', 'success')
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Invalid admin credentials.', 'error')
+            return redirect(url_for('admin_login'))
+    return render_template('admin/admin_login.html')
+
+@app.route('/admin/dashboard')
+@login_required
+def admin_dashboard():
+    if not session.get('is_admin'):
+        flash('Access denied. Admin privileges required.', 'error')
+        return redirect(url_for('user_dashboard'))
+    
+    # Get counts for admin dashboard
+    total_users = User.query.count()
+    total_books = Book.query.count()
+    total_lists = List.query.count()
+    
+    return render_template('admin/admin_dashboard.html', 
+                         total_users=total_users,
+                         total_books=total_books,
+                         total_lists=total_lists)
+
+@app.route('/admin/users/delete/<int:id>', methods=['POST'])
+@login_required
+def admin_delete_user(id):
+    if not session.get('is_admin'):
+        flash('Access denied. Admin privileges required.', 'error')
+        return redirect(url_for('user_dashboard'))
+    
+    user = User.query.get_or_404(id)
+    
+    # Prevent admin from deleting themselves
+    if user.id == session['user_id']:
+        flash('Cannot delete your own admin account.', 'error')
+        return redirect(url_for('admin_users'))
+    
+    try:
+        # Delete user's lists first (due to foreign key constraints)
+        List.query.filter_by(user_id=user.id).delete()
+        
+        # Delete the user
+        db.session.delete(user)
+        db.session.commit()
+        flash('User deleted successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error deleting user. Please try again.', 'error')
+    
+    return redirect(url_for('admin_users'))
+
+@app.route('/update_profile', methods=['POST'])
+@login_required
+def update_profile():
+    user = User.query.get(session['user_id'])
+    
+    # Get form data
+    username = request.form.get('username', '').strip()
+    email = request.form.get('email', '').strip()
+    current_password = request.form.get('current_password', '').strip()
+    new_password = request.form.get('new_password', '').strip()
+    confirm_password = request.form.get('confirm_password', '').strip()
+    
+    # Verify current password
+    if not user.check_password(current_password):
+        flash('Current password is incorrect.', 'error')
+        return redirect(url_for('user_dashboard', tab='overview'))
+    
+    # Check if username or email is changed and if they're already taken
+    if (username != user.username or email != user.email):
+        existing = User.query.filter(
+            ((User.username == username) | (User.email == email)) & 
+            (User.id != user.id)
+        ).first()
+        
+        if existing:
+            flash('Username or email already exists.', 'error')
+            return redirect(url_for('user_dashboard', tab='overview'))
+    
+    # Update user details
+    user.username = username
+    user.email = email
+    
+    # Update password if provided
+    if new_password:
+        if new_password != confirm_password:
+            flash('New passwords do not match.', 'error')
+            return redirect(url_for('user_dashboard', tab='overview'))
+        
+        user.set_password(new_password)
+    
+    # Save changes
+    db.session.commit()
+    flash('Your profile has been updated.', 'success')
+    return redirect(url_for('user_dashboard', tab='overview'))
 
 ###############################################################################
 # MAIN
 ###############################################################################
-if __name__=='__main__':
+if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        db.create_all()  # This creates all tables
     app.run(host='0.0.0.0', port=5000)
