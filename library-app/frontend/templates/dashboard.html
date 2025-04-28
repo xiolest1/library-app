@@ -11,153 +11,550 @@ Shows basic user info, plus a section for custom lists
   <meta charset="UTF-8">
   <title>Dashboard - Library Search</title>
   <link rel="stylesheet" href="/static/style.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
+    :root {
+      --primary-color: #0077b6;
+      --primary-dark: #005f92;
+      --primary-soft: rgba(0, 119, 182, 0.1);
+      --text-primary: #2c3e50;
+      --text-secondary: #6c757d;
+      --text-on-primary: #ffffff;
+      --bg-main: #f8f9fa;
+      --bg-card: #ffffff;
+      --shadow-sm: 0 8px 20px rgba(0,0,0,0.1);
+      --shadow-lg: 0 16px 32px rgba(0,0,0,0.15);
+      --border-color: #e9ecef;
+      --success-color: #2ecc71;
+      --error-color: #e74c3c;
+      --warning-color: #f39c12;
+      --info-color: #3498db;
+    }
+
+    [data-theme="dark"] {
+      --primary-color: #3498db;
+      --primary-dark: #2980b9;
+      --primary-soft: rgba(52, 152, 219, 0.1);
+      --text-primary: #e9ecef;
+      --text-secondary: #adb5bd;
+      --text-on-primary: #ffffff;
+      --bg-main: #1a1a1a;
+      --bg-card: #2c3e50;
+      --shadow-sm: 0 8px 20px rgba(0,0,0,0.2);
+      --shadow-lg: 0 16px 32px rgba(0,0,0,0.3);
+      --border-color: #4a5568;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+    }
+
     .dashboard-container {
       display: flex;
       margin: 100px auto 30px auto;
-      max-width: 1000px;
-      background: white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      border-radius: 10px;
+      max-width: 1200px;
+      background: var(--bg-card);
+      box-shadow: var(--shadow-sm);
+      border-radius: 15px;
       overflow: hidden;
+      transition: all 0.3s ease;
     }
+
     .sidebar {
-      width: 250px;
-      background: #f1f3f5;
-      padding: 20px;
+      width: 280px;
+      background: var(--bg-main);
+      padding: 30px 20px;
+      border-right: 1px solid var(--border-color);
     }
+
+    .sidebar-header {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-header h2 {
+      color: var(--text-primary);
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .sidebar-header p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
     .sidebar ul {
       list-style: none;
       padding: 0;
     }
+
     .sidebar ul li {
-      margin-bottom: 15px;
-      padding: 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .sidebar ul li.active,
-    .sidebar ul li:hover {
-      background: #e9ecef;
-    }
-    .sidebar ul li a {
-      text-decoration: none;
-      color: #0077b6;
-      font-weight: 600;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
     }
 
-    /* Main content to the right of the sidebar */
+    .sidebar ul li a {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar ul li a i {
+      margin-right: 10px;
+      font-size: 1.2rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .sidebar ul li.active a,
+    .sidebar ul li:hover a {
+      background: var(--primary-soft);
+      color: var(--primary-color);
+    }
+
     .main-content {
       flex: 1;
-      padding: 30px;
+      padding: 40px;
+      overflow-y: auto;
     }
+
     .dashboard-section {
       display: none;
+      animation: fadeIn 0.5s ease;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .dashboard-section.active {
       display: block;
     }
-    .list-section {
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 5px;
+
+    .section-header {
+      margin-bottom: 30px;
     }
-    .list-section h3 {
+
+    .section-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
       margin-bottom: 10px;
+    }
+
+    .section-header p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 25px;
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 20px;
     }
-    .list-section h3 form {
-      display: inline;
+
+    .card-header h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .list-section {
+      background: var(--bg-card);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 25px;
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+    }
+
+    .list-section:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .list-header h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-primary);
       margin: 0;
-      padding: 0;
     }
-    .list-section ul {
-      list-style: none;
-      padding-left: 0;
+
+    .list-actions {
+      display: flex;
+      gap: 10px;
     }
-    .list-section ul li {
+
+    .list-items {
+      margin-top: 15px;
+    }
+
+    .list-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 5px 0;
+      padding: 12px 15px;
+      background: var(--bg-main);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      transition: all 0.2s ease;
     }
-    .list-section ul li a {
-      text-decoration: none;
-      color: #0077b6;
+
+    .list-item:hover {
+      background: var(--primary-soft);
     }
+
+    .list-item-info {
+      flex: 1;
+    }
+
+    .list-item-title {
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 5px;
+    }
+
+    .list-item-author {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .list-item-actions {
+      display: flex;
+      gap: 10px;
+    }
+
     .flashes {
       list-style: none;
       padding: 0;
+      margin-bottom: 25px;
+    }
+
+    .flashes li {
+      padding: 15px 20px;
+      border-radius: 8px;
       margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      animation: slideIn 0.3s ease;
     }
+
+    @keyframes slideIn {
+      from { transform: translateX(-20px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .flashes li i {
+      margin-right: 10px;
+      font-size: 1.2rem;
+    }
+
     .flashes li.success {
-      background-color: #c8e6c9;
-      color: #256029;
-      padding: 8px;
-      border-radius: 4px;
-      margin-bottom: 10px;
+      background-color: rgba(46, 204, 113, 0.1);
+      color: var(--success-color);
+      border: 1px solid rgba(46, 204, 113, 0.2);
     }
+
     .flashes li.error {
-      background-color: #ffcdd2;
-      color: #c63737;
-      padding: 8px;
-      border-radius: 4px;
-      margin-bottom: 10px;
+      background-color: rgba(231, 76, 60, 0.1);
+      color: var(--error-color);
+      border: 1px solid rgba(231, 76, 60, 0.2);
     }
+
+    .flashes li.warning {
+      background-color: rgba(243, 156, 18, 0.1);
+      color: var(--warning-color);
+      border: 1px solid rgba(243, 156, 18, 0.2);
+    }
+
+    .flashes li.info {
+      background-color: rgba(52, 152, 219, 0.1);
+      color: var(--info-color);
+      border: 1px solid rgba(52, 152, 219, 0.2);
+    }
+
     .btn {
-      background-color: #0077b6;
-      color: #fff;
-      padding: 5px 10px;
-      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 500;
       text-decoration: none;
-      border: none;
       cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      font-size: 0.95rem;
     }
-    .btn:hover {
-      background-color: #023e8a;
+
+    .btn i {
+      margin-right: 8px;
     }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: var(--text-on-primary);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--border-color);
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background-color: var(--error-color);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #c0392b;
+      transform: translateY(-2px);
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+    }
+
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
+
     .form-group label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       font-weight: 500;
-      color: #4a5568;
+      color: var(--text-primary);
     }
+
     .form-group input {
       width: 100%;
-      max-width: 400px;
-      padding: 10px;
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      font-size: 15px;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: var(--bg-card);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
     }
+
     .form-group input:focus {
       outline: none;
-      border-color: #4299e1;
-      box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-soft);
     }
+
+    .form-group input::placeholder {
+      color: var(--text-secondary);
+    }
+
     .profile-section {
-      background-color: #f9fafb;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 30px;
+      margin-bottom: 30px;
     }
+
     .profile-info {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--primary-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 3rem;
+      color: var(--primary-color);
+    }
+
+    .profile-details {
+      text-align: center;
+    }
+
+    .profile-details h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .profile-details p {
+      color: var(--text-secondary);
       margin-bottom: 20px;
     }
-    .profile-edit {
-      background-color: white;
-      padding: 20px;
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 15px;
+      background: var(--bg-main);
       border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .profile-edit {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .profile-edit h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .create-list-form {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .create-list-form h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 25px;
+    }
+
+    .create-list-form .form-group {
+      margin-bottom: 20px;
+    }
+
+    .create-list-form input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .create-list-form input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+
+    @media (max-width: 992px) {
+      .dashboard-container {
+        flex-direction: column;
+        margin: 80px 20px 30px;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .main-content {
+        padding: 30px 20px;
+      }
+
+      .profile-section {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .list-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+
+      .list-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .list-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+
+      .list-item-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
     }
   </style>
 </head>
@@ -180,18 +577,30 @@ Shows basic user info, plus a section for custom lists
   <div class="dashboard-container">
     <!-- Sidebar -->
     <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>Library Dashboard</h2>
+        <p>Manage your account and lists</p>
+      </div>
       <ul>
-        <li data-section="overview"><a href="#">Overview</a></li>
-        <li data-section="custom-lists"><a href="#">My Custom Lists</a></li>
-        <li data-section="create-list"><a href="#">Create New List</a></li>
+        <li data-section="overview">
+          <a href="#"><i class="fas fa-home"></i> Overview</a>
+        </li>
+        <li data-section="custom-lists">
+          <a href="#"><i class="fas fa-bookmark"></i> My Lists</a>
+        </li>
+        <li data-section="create-list">
+          <a href="#"><i class="fas fa-plus-circle"></i> Create List</a>
+        </li>
       </ul>
     </div>
 
     <div class="main-content">
-
       <!-- Overview Section -->
       <section id="overview" class="dashboard-section">
-        <h1>User Dashboard</h1>
+        <div class="section-header">
+          <h1>Welcome, {{ user.username }}!</h1>
+          <p>Manage your profile and view your activity</p>
+        </div>
         
         <!-- Flash messages for overview tab -->
         {% if active_tab == 'overview' or not active_tab %}
@@ -199,7 +608,10 @@ Shows basic user info, plus a section for custom lists
             {% if messages %}
               <ul class="flashes">
                 {% for category, message in messages %}
-                  <li class="{{ category }}">{{ message }}</li>
+                  <li class="{{ category }}">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                  </li>
                 {% endfor %}
               </ul>
             {% endif %}
@@ -208,40 +620,54 @@ Shows basic user info, plus a section for custom lists
         
         <div class="profile-section">
           <div class="profile-info">
-            <h2>Your Profile</h2>
-            <p>Welcome, {{ user.username }}!</p>
-            <p>Email: {{ user.email }}</p>
+            <div class="profile-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-details">
+              <h2>{{ user.username }}</h2>
+              <p>{{ user.email }}</p>
+              <div class="profile-stats">
+                <div class="stat-item">
+                  <div class="stat-value">{{ lists|length }}</div>
+                  <div class="stat-label">Lists</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">{{ lists|sum(attribute='items|length') }}</div>
+                  <div class="stat-label">Books</div>
+                </div>
+              </div>
+            </div>
           </div>
           
           <div class="profile-edit">
-            <h3>Edit Your Details</h3>
+            <h3>Edit Profile</h3>
             <form method="POST" action="{{ url_for('update_profile') }}">
               <div class="form-group">
-                <label for="username">Username:</label>
+                <label for="username">Username</label>
                 <input type="text" id="username" name="username" value="{{ user.username }}" required>
               </div>
               
               <div class="form-group">
-                <label for="email">Email:</label>
+                <label for="email">Email</label>
                 <input type="email" id="email" name="email" value="{{ user.email }}" required>
               </div>
               
               <div class="form-group">
-                <label for="current_password">Current Password (required to save changes):</label>
-                <input type="password" id="current_password" name="current_password" required>
+                <label for="current_password">Current Password</label>
+                <input type="password" id="current_password" name="current_password" required placeholder="Required to save changes">
               </div>
               
               <div class="form-group">
-                <label for="new_password">New Password (leave blank to keep current):</label>
-                <input type="password" id="new_password" name="new_password">
+                <label for="new_password">New Password</label>
+                <input type="password" id="new_password" name="new_password" placeholder="Leave blank to keep current">
               </div>
               
               <div class="form-group">
-                <label for="confirm_password">Confirm New Password:</label>
-                <input type="password" id="confirm_password" name="confirm_password">
+                <label for="confirm_password">Confirm New Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm new password">
               </div>
               
-              <button type="submit" class="btn">Save Changes</button>
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
             </form>
           </div>
         </div>
@@ -249,7 +675,10 @@ Shows basic user info, plus a section for custom lists
 
       <!-- Custom Lists Section -->
       <section id="custom-lists" class="dashboard-section">
-        <h2>Your Custom Lists</h2>
+        <div class="section-header">
+          <h1>Your Lists</h1>
+          <p>Manage your custom book lists</p>
+        </div>
         
         <!-- Flash messages for custom-lists tab -->
         {% if active_tab == 'custom-lists' %}
@@ -257,59 +686,74 @@ Shows basic user info, plus a section for custom lists
             {% if messages %}
               <ul class="flashes">
                 {% for category, message in messages %}
-                  <li class="{{ category }}">{{ message }}</li>
+                  <li class="{{ category }}">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                  </li>
                 {% endfor %}
               </ul>
             {% endif %}
           {% endwith %}
         {% endif %}
 
-        <!-- Display each list with rename/delete forms, plus items inside -->
-        {% for lst in lists %}
-          <div class="list-section">
-            <h3>
-              <span>{{ lst.name }}</span>
-              <span>
-                <!-- Rename form -->
-                <form method="POST" action="/lists/{{ lst.id }}/rename" style="display:inline;">
-                  <input type="text" name="new_name" placeholder="Rename" style="width:100px;">
-                  <button type="submit" class="btn">Rename</button>
-                </form>
-                <!-- Delete entire list form -->
-                <form method="POST" action="/lists/{{ lst.id }}/delete" style="display:inline; margin-left:5px;">
-                  <button type="submit" class="btn">Delete List</button>
-                </form>
-              </span>
-            </h3>
+        {% if lists %}
+          {% for lst in lists %}
+            <div class="list-section">
+              <div class="list-header">
+                <h3>{{ lst.name }}</h3>
+                <div class="list-actions">
+                  <form method="POST" action="/lists/{{ lst.id }}/rename" style="display:inline;">
+                    <input type="text" name="new_name" placeholder="New name" class="btn-small">
+                    <button type="submit" class="btn btn-small btn-secondary"><i class="fas fa-edit"></i> Rename</button>
+                  </form>
+                  <form method="POST" action="/lists/{{ lst.id }}/delete" style="display:inline;">
+                    <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Are you sure you want to delete this list?')">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  </form>
+                </div>
+              </div>
 
-            <!-- If the list has items, show them -->
-            {% if lst.items %}
-              <ul>
-                {% for item in lst.items %}
-                  <li>
-                    <!-- Link to the open library book page -->
-                    <div>
-                      <a href="/book{{ item.book_key }}">{{ item.title }}</a>
-                      {% if item.author %} by {{ item.author }}{% endif %}
+              {% if lst.items %}
+                <div class="list-items">
+                  {% for item in lst.items %}
+                    <div class="list-item">
+                      <div class="list-item-info">
+                        <div class="list-item-title">
+                          <a href="/book{{ item.book_key }}">{{ item.title }}</a>
+                        </div>
+                        {% if item.author %}
+                          <div class="list-item-author">by {{ item.author }}</div>
+                        {% endif %}
+                      </div>
+                      <div class="list-item-actions">
+                        <form method="POST" action="/lists/{{ lst.id }}/remove_item/{{ item.id }}">
+                          <button type="submit" class="btn btn-small btn-danger">
+                            <i class="fas fa-times"></i> Remove
+                          </button>
+                        </form>
+                      </div>
                     </div>
-
-                    <!-- Remove item from list form -->
-                    <form method="POST" action="/lists/{{ lst.id }}/remove_item/{{ item.id }}">
-                      <button type="submit" class="btn">Remove</button>
-                    </form>
-                  </li>
-                {% endfor %}
-              </ul>
-            {% else %}
-              <p>No books in this list yet.</p>
-            {% endif %}
+                  {% endfor %}
+                </div>
+              {% else %}
+                <p>No books in this list yet.</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="card">
+            <p>You don't have any lists yet. Create your first list to start organizing your books!</p>
           </div>
-        {% endfor %}
+        {% endif %}
       </section>
 
       <!-- Create New List -->
       <section id="create-list" class="dashboard-section">
-        <h2>Create a New List</h2>
+        <div class="section-header">
+          <h1>Create a New List</h1>
+          <p>Create a new list to organize your books</p>
+        </div>
         
         <!-- Flash messages for create-list tab -->
         {% if active_tab == 'create-list' %}
@@ -317,17 +761,26 @@ Shows basic user info, plus a section for custom lists
             {% if messages %}
               <ul class="flashes">
                 {% for category, message in messages %}
-                  <li class="{{ category }}">{{ message }}</li>
+                  <li class="{{ category }}">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                  </li>
                 {% endfor %}
               </ul>
             {% endif %}
           {% endwith %}
         {% endif %}
         
-        <form method="POST" action="/lists/create">
-          <input type="text" name="list_name" placeholder="List name" required>
-          <button type="submit" class="btn">Create List</button>
-        </form>
+        <div class="create-list-form">
+          <h3>New List</h3>
+          <form method="POST" action="/lists/create">
+            <div class="form-group">
+              <label for="list_name">List Name</label>
+              <input type="text" id="list_name" name="list_name" placeholder="Enter a name for your list" required>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Create List</button>
+          </form>
+        </div>
       </section>
 
     </div><!-- /.main-content -->
@@ -362,6 +815,10 @@ Shows basic user info, plus a section for custom lists
       } else {
         activateTab('overview');
       }
+
+      // Get the theme from localStorage (set by index page)
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
     });
 
     // Add click handlers for sidebar items

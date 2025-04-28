@@ -6,16 +6,49 @@
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
   <style>
+    :root {
+      --primary-color: #0077b6;
+      --primary-dark: #005f92;
+      --primary-soft: rgba(0, 119, 182, 0.1);
+      --text-primary: #2c3e50;
+      --text-secondary: #6c757d;
+      --text-on-primary: #ffffff;
+      --bg-main: #f8f9fa;
+      --bg-card: #ffffff;
+      --shadow-sm: 0 8px 20px rgba(0,0,0,0.1);
+      --shadow-lg: 0 16px 32px rgba(0,0,0,0.15);
+      --border-color: #e9ecef;
+    }
+
+    [data-theme="dark"] {
+      --primary-color: #3498db;
+      --primary-dark: #2980b9;
+      --primary-soft: rgba(52, 152, 219, 0.1);
+      --text-primary: #e9ecef;
+      --text-secondary: #adb5bd;
+      --text-on-primary: #ffffff;
+      --bg-main: #1a1a1a;
+      --bg-card: #2c3e50;
+      --shadow-sm: 0 8px 20px rgba(0,0,0,0.2);
+      --shadow-lg: 0 16px 32px rgba(0,0,0,0.3);
+      --border-color: #4a5568;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+    }
+
     .admin-container {
       max-width: 800px;
       margin: 100px auto 30px;
       padding: 20px;
     }
     .admin-section {
-      background: white;
+      background: var(--bg-card);
       padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: var(--shadow-sm);
     }
     .form-group {
       margin-bottom: 15px;
@@ -24,13 +57,16 @@
       display: block;
       margin-bottom: 5px;
       font-weight: 600;
+      color: var(--text-primary);
     }
     .form-group input, .form-group select {
       width: 100%;
       padding: 8px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--border-color);
       border-radius: 4px;
       font-size: 1em;
+      background-color: var(--bg-card);
+      color: var(--text-primary);
     }
     .button-container {
       margin-top: 20px;
@@ -44,13 +80,33 @@
       cursor: pointer;
       font-size: 1em;
       text-decoration: none;
-      color: white;
+      color: var(--text-on-primary);
     }
     .btn-primary {
-      background-color: #0077b6;
+      background-color: var(--primary-color);
     }
     .btn-secondary {
-      background-color: #6c757d;
+      background-color: var(--text-secondary);
+    }
+    .flashes {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px 0;
+    }
+    .flashes li {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .flashes li.success {
+      background-color: rgba(21, 87, 36, 0.1);
+      color: #2ecc71;
+      border: 1px solid rgba(46, 204, 113, 0.2);
+    }
+    .flashes li.error {
+      background-color: rgba(114, 28, 36, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.2);
     }
   </style>
 </head>
@@ -108,5 +164,10 @@
       </form>
     </div>
   </div>
+  <script>
+    // Get the theme from localStorage (set by index page)
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
 </body>
 </html> 

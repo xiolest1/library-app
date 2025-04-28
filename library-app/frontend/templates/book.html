@@ -74,6 +74,41 @@ and a form to add the book to one of the user's custom lists.
     .work-card:hover {
       transform: translateY(-5px);
     }
+    .author-card {
+      background: #f1f3f5;
+      border-radius: 8px;
+      padding: 15px;
+      width: 200px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .author-placeholder {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0077b6, #023e8a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      color: white;
+      font-size: 2.5em;
+      font-weight: 300;
+      line-height: 1;
+      text-align: center;
+      padding-bottom: 2px;
+    }
+    .author-card h3 {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .author-card p {
+      width: 100%;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -112,7 +147,13 @@ and a form to add the book to one of the user's custom lists.
       </div>
       <div class="book-info" style="flex:2 1 400px;">
         <h1>{{ book.title }}</h1>
-        <p><strong>First Published:</strong> {{ book.first_publish_date if book.first_publish_date else "N/A" }}</p>
+        <p><strong>First Published:</strong> 
+          {% if book.first_publish_date != 'N/A' %}
+            {{ book.first_publish_date }}
+          {% else %}
+            Publication date unknown
+          {% endif %}
+        </p>
         
         {% if book.description %}
           <div class="book-description" id="description">
@@ -130,11 +171,13 @@ and a form to add the book to one of the user's custom lists.
       <div class="authors-container">
         <h2>Author</h2>
         <div class="authors" style="display:flex; flex-wrap:wrap; gap:20px;">
-          <div class="author-card" style="background:#f1f3f5; border-radius:8px; padding:15px; width:200px; text-align:center;">
+          <div class="author-card">
             {% if author.photo %}
               <img src="https://covers.openlibrary.org/a/id/{{ author.photo }}-M.jpg" alt="Author Photo" style="width:100px; height:100px; object-fit:cover; border-radius:50%; margin-bottom:10px;">
             {% else %}
-              <img src="https://via.placeholder.com/100?text=No+Photo" alt="No Photo" style="width:100px; height:100px; border-radius:50%; margin-bottom:10px;">
+              <div class="author-placeholder">
+                {{ author.name[0]|upper }}
+              </div>
             {% endif %}
             <h3>{{ author.name }}</h3>
             {% if author.bio %}

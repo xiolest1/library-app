@@ -2,40 +2,69 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Login - Library Search</title>
+  <title>Staff Login - Library Search</title>
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
   <style>
+    :root {
+      --primary-color: #0077b6;
+      --primary-dark: #005f92;
+      --primary-soft: rgba(0, 119, 182, 0.1);
+      --text-primary: #2c3e50;
+      --text-secondary: #6c757d;
+      --text-on-primary: #ffffff;
+      --bg-main: #f8f9fa;
+      --bg-card: #ffffff;
+      --shadow-sm: 0 8px 20px rgba(0,0,0,0.1);
+      --shadow-lg: 0 16px 32px rgba(0,0,0,0.15);
+      --border-color: #e9ecef;
+    }
+
+    [data-theme="dark"] {
+      --primary-color: #3498db;
+      --primary-dark: #2980b9;
+      --primary-soft: rgba(52, 152, 219, 0.1);
+      --text-primary: #e9ecef;
+      --text-secondary: #adb5bd;
+      --text-on-primary: #ffffff;
+      --bg-main: #1a1a1a;
+      --bg-card: #2c3e50;
+      --shadow-sm: 0 8px 20px rgba(0,0,0,0.2);
+      --shadow-lg: 0 16px 32px rgba(0,0,0,0.3);
+      --border-color: #4a5568;
+    }
+
     body {
-      background-color: #f8f9fa;
+      background-color: var(--bg-main);
+      color: var(--text-primary);
     }
     .form-container {
       max-width: 400px;
       margin: 100px auto 30px;
       padding: 35px;
-      background: white;
+      background: var(--bg-card);
       border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      box-shadow: var(--shadow-sm);
     }
     .form-header {
       text-align: center;
       margin-bottom: 30px;
     }
     .form-header h1 {
-      color: #2c3e50;
+      color: var(--text-primary);
       font-size: 2em;
       font-weight: 600;
       margin: 0 0 10px 0;
     }
     .form-header p {
-      color: #6c757d;
+      color: var(--text-secondary);
       font-size: 1.1em;
       margin: 0;
     }
     .admin-icon {
       width: 60px;
       height: 60px;
-      background: #e3f2fd;
+      background: var(--primary-soft);
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -50,22 +79,24 @@
       display: block;
       margin-bottom: 8px;
       font-weight: 500;
-      color: #495057;
+      color: var(--text-primary);
       font-size: 0.95em;
     }
     .form-group input {
       width: 100%;
       padding: 12px 15px;
-      border: 2px solid #e9ecef;
+      border: 2px solid var(--border-color);
       border-radius: 8px;
       font-size: 1em;
       transition: border-color 0.3s, box-shadow 0.3s;
       font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-card);
+      color: var(--text-primary);
     }
     .form-group input:focus {
       outline: none;
-      border-color: #0077b6;
-      box-shadow: 0 0 0 3px rgba(0,119,182,0.1);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-soft);
     }
     .button-container {
       display: flex;
@@ -91,18 +122,19 @@
       transform: scale(0.98);
     }
     .btn-primary {
-      background-color: #0077b6;
-      color: white;
+      background-color: var(--primary-color);
+      color: var(--text-on-primary);
     }
     .btn-primary:hover {
-      background-color: #023e8a;
+      background-color: var(--primary-dark);
     }
     .btn-secondary {
-      background-color: #e9ecef;
-      color: #495057;
+      background-color: var(--border-color);
+      color: var(--text-primary);
     }
     .btn-secondary:hover {
-      background-color: #dee2e6;
+      background-color: var(--text-secondary);
+      color: var(--text-on-primary);
     }
     .flashes {
       list-style: none;
@@ -116,14 +148,14 @@
       font-size: 0.95em;
     }
     .flashes li.success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
+      background-color: rgba(21, 87, 36, 0.1);
+      color: #2ecc71;
+      border: 1px solid rgba(46, 204, 113, 0.2);
     }
     .flashes li.error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+      background-color: rgba(114, 28, 36, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.2);
     }
   </style>
 </head>
@@ -139,11 +171,11 @@
   <div class="form-container">
     <div class="form-header">
       <div class="admin-icon">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="#0077b6">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="var(--primary-color)">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
         </svg>
       </div>
-      <h1>Admin Login</h1>
+      <h1>Staff Login</h1>
       <p>Please enter your credentials</p>
     </div>
 
@@ -159,32 +191,37 @@
     
     <form method="POST" action="/admin/login">
       <div class="form-group">
-        <label for="username">Admin Username</label>
+        <label for="username">Staff Username</label>
         <input 
           type="text" 
           id="username" 
           name="username" 
           required 
           autocomplete="username"
-          placeholder="Enter admin username"
+          placeholder="Enter staff username"
         >
       </div>
       <div class="form-group">
-        <label for="password">Admin Password</label>
+        <label for="password">Staff Password</label>
         <input 
           type="password" 
           id="password" 
           name="password" 
           required 
           autocomplete="current-password"
-          placeholder="Enter admin password"
+          placeholder="Enter staff password"
         >
       </div>
       <div class="button-container">
         <a href="/login" class="btn btn-secondary">Back to Login</a>
-        <button type="submit" class="btn btn-primary">Login as Admin</button>
+        <button type="submit" class="btn btn-primary">Login as Staff</button>
       </div>
     </form>
   </div>
+  <script>
+    // Get the theme from localStorage (set by index page)
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
 </body>
 </html> 

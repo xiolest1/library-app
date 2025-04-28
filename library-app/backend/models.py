@@ -16,10 +16,11 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
+    username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), default='user')
+    password_hash = db.Column(db.String(256))
+    role = db.Column(db.String(20), default='user')  # 'user', 'librarian', or 'admin'
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationship to any books they've added (if they're a librarian or admin)
     books_added = db.relationship('Book', backref='added_by', lazy=True)
@@ -35,6 +36,35 @@ class User(db.Model):
         Verifies a plaintext password against the stored hash.
         """
         return check_password_hash(self.password_hash, password)
+
+    @staticmethod
+    def create_default_users():
+        # Check if default admin exists
+        admin = User.query.filter_by(username='admin').first()
+        if not admin:
+            admin = User(
+                username='admin',
+                email='admin@library.com',
+                role='admin'
+            )
+            admin.set_password('password123')
+            db.session.add(admin)
+
+        # Check if default librarian exists
+        librarian = User.query.filter_by(username='librarian').first()
+        if not librarian:
+            librarian = User(
+                username='librarian',
+                email='librarian@library.com',
+                role='librarian'
+            )
+            librarian.set_password('password123')
+            db.session.add(librarian)
+
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
 
 
 class Book(db.Model):
@@ -69,6 +99,9 @@ class List(db.Model):
     # Each list belongs to one user
     user = db.relationship('User', backref=db.backref('lists', lazy=True))
 
+    # Relationship to list items
+    items = db.relationship('ListItem', backref='list', lazy=True, cascade='all, delete-orphan')
+
 class ListItem(db.Model):
     """
     Represents a book (from Open Library or otherwise) 
@@ -78,10 +111,8 @@ class ListItem(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     list_id = db.Column(db.Integer, db.ForeignKey('lists.id'), nullable=False)
-    book_key = db.Column(db.String(200), nullable=False)  # e.g. '/works/OL12345W'
-    title = db.Column(db.String(255), nullable=False)
-    author = db.Column(db.String(255), nullable=True)
-    cover_i = db.Column(db.String(50), nullable=True)
-
-    # Relationship: A list item belongs to one List
-    parent_list = db.relationship('List', backref=db.backref('items', lazy=True))
+    book_key = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    author = db.Column(db.String(200))
+    cover_i = db.Column(db.String(20))
+    added_at = db.Column(db.DateTime, default=datetime.utcnow)

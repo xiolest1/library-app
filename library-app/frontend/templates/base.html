@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Library App{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="/static/theme.js"></script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Top Nav Bar -->
+    <nav class="banner">
+        <a href="/"><img src="/static/logo.png" alt="Library Logo" class="logo"></a>
+        <a href="/" class="banner-item">Home</a>
+        <a href="/about" class="banner-item">About</a>
+        {% if session.get('user_id') %}
+            {% if session.get('is_admin') %}
+                <a href="{{ url_for('admin_dashboard') }}" class="banner-item">Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('user_dashboard') }}" class="banner-item">Dashboard</a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}" class="banner-item">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="banner-item">Login</a>
+            <a href="{{ url_for('register') }}" class="banner-item">Register</a>
+        {% endif %}
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Theme Toggle Button (only shown on index page) -->
+    {% block theme_toggle %}{% endblock %}
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

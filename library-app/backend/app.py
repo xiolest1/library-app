@@ -17,6 +17,10 @@ db_url = os.getenv('DATABASE_URL', 'postgresql://library_user:password123@db:543
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Google Books API configuration
+GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes"
+GOOGLE_BOOKS_API_KEY = os.getenv('GOOGLE_BOOKS_API_KEY', '')  # You'll need to set this environment variable
+
 db.init_app(app)
 
 ###############################################################################
@@ -42,12 +46,52 @@ def role_required(*roles):
         @wraps(f)
         def wrapper(*args, **kwargs):
             user = current_user()
-            if not user or user.role not in roles:
+            # Handle both single roles and lists of roles
+            allowed_roles = []
+            for role in roles:
+                if isinstance(role, (list, tuple)):
+                    allowed_roles.extend(role)
+                else:
+                    allowed_roles.append(role)
+            
+            if not user or user.role not in allowed_roles:
                 flash('Access denied.', 'error')
                 return redirect(url_for('index'))
             return f(*args, **kwargs)
         return wrapper
     return decorator
+
+def get_publication_date(book_title, author_name=None):
+    """
+    Get publication date from Google Books API, fallback to Open Library if not found.
+    Returns tuple of (date, source) where source is either 'google' or 'openlibrary'
+    """
+    # Try Google Books API first
+    try:
+        query = f"intitle:{book_title}"
+        if author_name:
+            query += f"+inauthor:{author_name}"
+            
+        params = {
+            'q': query,
+            'key': GOOGLE_BOOKS_API_KEY
+        }
+        
+        response = requests.get(GOOGLE_BOOKS_API_URL, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('items'):
+                # Get the first result's publication date
+                volume_info = data['items'][0].get('volumeInfo', {})
+                if 'publishedDate' in volume_info:
+                    # Google Books usually returns YYYY-MM-DD or YYYY format
+                    return volume_info['publishedDate'].split('-')[0], 'google'
+    except Exception as e:
+        print(f"Google Books API error: {e}")
+    
+    # If we get here, either Google Books failed or no date was found
+    # The Open Library date will be handled by the existing code
+    return None, None
 
 ###############################################################################
 # OPEN LIBRARY SEARCH LOGIC
@@ -212,6 +256,7 @@ def login():
         if user and user.check_password(password):
             session['user_id'] = user.id
             session['is_admin'] = (user.role == 'admin')
+            session['user_role'] = user.role  # Add this line to store the user's role
             
             # Redirect based on user type
             if user.role == 'admin':
@@ -437,6 +482,23 @@ def book_detail(work_key):
     if 'description' in book:
         book['description'] = book['description']['value'] if isinstance(book['description'], dict) else book['description']
 
+    # Get publication date from Google Books first, then fallback to Open Library
+    google_date, date_source = get_publication_date(
+        book.get('title', ''),
+        author_data.get('name') if author_data else None
+    )
+    
+    if google_date:
+        book['first_publish_date'] = google_date
+        book['date_source'] = date_source
+    else:
+        # Keep the existing Open Library date if available
+        if 'first_publish_date' in book:
+            book['date_source'] = 'openlibrary'
+        else:
+            book['first_publish_date'] = 'N/A'
+            book['date_source'] = None
+
     # Get author's other works
     author_works = []
     if 'authors' in book and book['authors']:
@@ -473,14 +535,14 @@ def book_detail(work_key):
 # ------------------------------
 @app.route('/admin/books')
 @login_required
-@role_required('admin')
+@role_required('admin', 'librarian')
 def admin_books():
     books = Book.query.all()
     return render_template('admin/admin_books.html', books=books)
 
 @app.route('/admin/users')
 @login_required
-@role_required('admin')
+@role_required('admin')  # Only admin can manage users
 def admin_users():
     users = User.query.all()
     return render_template('admin/admin_users.html', users=users)
@@ -572,32 +634,39 @@ def admin_login():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
 
-        user = User.query.filter_by(username=username, role='admin').first()
+        user = User.query.filter(
+            User.username == username,
+            User.role.in_(['admin', 'librarian'])
+        ).first()
+        
         if user and user.check_password(password):
             session['user_id'] = user.id
-            session['is_admin'] = True
-            flash('Logged in as administrator.', 'success')
+            session['is_admin'] = (user.role == 'admin')
+            session['is_librarian'] = (user.role == 'librarian')
+            session['user_role'] = user.role  # Add this line to store the user's role
+            flash(f'Logged in as {user.role}.', 'success')
             return redirect(url_for('admin_dashboard'))
         else:
-            flash('Invalid admin credentials.', 'error')
+            flash('Invalid staff credentials.', 'error')
             return redirect(url_for('admin_login'))
     return render_template('admin/admin_login.html')
 
 @app.route('/admin/dashboard')
-@login_required
+@role_required(['admin', 'librarian'])
 def admin_dashboard():
-    if not session.get('is_admin'):
-        flash('Access denied. Admin privileges required.', 'error')
-        return redirect(url_for('user_dashboard'))
+    # Get current user and their role
+    user = current_user()
+    user_role = user.role if user else None
     
-    # Get counts for admin dashboard
-    total_users = User.query.count()
+    # Get total counts
     total_books = Book.query.count()
-    total_lists = List.query.count()
+    total_users = User.query.count()
+    total_lists = 0  # Placeholder for future implementation
     
     return render_template('admin/admin_dashboard.html', 
-                         total_users=total_users,
+                         user_role=user_role,
                          total_books=total_books,
+                         total_users=total_users,
                          total_lists=total_lists)
 
 @app.route('/admin/users/delete/<int:id>', methods=['POST'])
@@ -678,5 +747,6 @@ def update_profile():
 ###############################################################################
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # This creates all tables
+        db.create_all()  # Create all tables
+        User.create_default_users()  # Create default admin and librarian users
     app.run(host='0.0.0.0', port=5000)

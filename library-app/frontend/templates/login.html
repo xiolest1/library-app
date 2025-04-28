@@ -7,64 +7,115 @@
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
   <style>
-    body {
-      background-color: #f8f9fa;
+    :root {
+      --primary-color: #0077b6;
+      --primary-dark: #005f92;
+      --primary-soft: rgba(0, 119, 182, 0.1);
+      --text-primary: #2c3e50;
+      --text-secondary: #6c757d;
+      --text-on-primary: #ffffff;
+      --bg-main: #f8f9fa;
+      --bg-card: #ffffff;
+      --shadow-sm: 0 8px 20px rgba(0,0,0,0.1);
+      --shadow-lg: 0 16px 32px rgba(0,0,0,0.15);
+      --border-color: #e9ecef;
     }
+
+    [data-theme="dark"] {
+      --primary-color: #3498db;
+      --primary-dark: #2980b9;
+      --primary-soft: rgba(52, 152, 219, 0.1);
+      --text-primary: #e9ecef;
+      --text-secondary: #adb5bd;
+      --text-on-primary: #ffffff;
+      --bg-main: #1a1a1a;
+      --bg-card: #2c3e50;
+      --shadow-sm: 0 8px 20px rgba(0,0,0,0.2);
+      --shadow-lg: 0 16px 32px rgba(0,0,0,0.3);
+      --border-color: #4a5568;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+    }
+
     .form-container {
       max-width: 400px;
       margin: 100px auto 30px;
       padding: 35px;
-      background: white;
+      background: var(--bg-card);
       border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+
+    .form-container:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
     .form-header {
       text-align: center;
       margin-bottom: 30px;
     }
+
     .form-header h1 {
-      color: #2c3e50;
+      color: var(--text-primary);
       font-size: 2em;
       font-weight: 600;
       margin: 0 0 10px 0;
     }
+
     .form-header p {
-      color: #6c757d;
+      color: var(--text-secondary);
       font-size: 1.1em;
       margin: 0;
     }
+
     .form-group {
       margin-bottom: 25px;
       position: relative;
     }
+
     .form-group label {
       display: block;
       margin-bottom: 8px;
       font-weight: 500;
-      color: #495057;
+      color: var(--text-primary);
       font-size: 0.95em;
     }
+
     .form-group input {
       width: 100%;
       padding: 12px 15px;
-      border: 2px solid #e9ecef;
+      border: 2px solid var(--border-color);
       border-radius: 8px;
       font-size: 1em;
-      transition: border-color 0.3s, box-shadow 0.3s;
+      transition: all 0.3s ease;
       font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-card);
+      color: var(--text-primary);
     }
+
     .form-group input:focus {
       outline: none;
-      border-color: #0077b6;
-      box-shadow: 0 0 0 3px rgba(0,119,182,0.1);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-soft);
     }
+
+    .form-group input::placeholder {
+      color: var(--text-secondary);
+    }
+
     .button-container {
       display: flex;
-      justify-content: flex-end;
+      justify-content: center;
       align-items: center;
       gap: 15px;
       margin-top: 30px;
     }
+
     .btn {
       padding: 12px 24px;
       border: none;
@@ -73,62 +124,100 @@
       font-size: 1em;
       text-decoration: none;
       font-weight: 500;
-      transition: transform 0.2s, background-color 0.2s;
+      transition: all 0.3s ease;
       font-family: 'Poppins', sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
+
     .btn:active {
       transform: scale(0.98);
     }
+
     .btn-primary {
-      background-color: #0077b6;
-      color: white;
+      background-color: var(--primary-color);
+      color: var(--text-on-primary);
     }
+
     .btn-primary:hover {
-      background-color: #023e8a;
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
     }
+
     .btn-secondary {
-      background-color: #e9ecef;
-      color: #495057;
+      background-color: var(--border-color);
+      color: var(--text-primary);
     }
+
     .btn-secondary:hover {
-      background-color: #dee2e6;
+      background-color: var(--text-secondary);
+      color: var(--text-on-primary);
+      transform: translateY(-2px);
     }
+
     .admin-link {
-      color: #6c757d;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
       text-decoration: none;
-      font-size: 0.9em;
-      transition: color 0.2s;
-      margin-right: auto;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--border-color);
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
+
     .admin-link:hover {
-      color: #0077b6;
+      background-color: var(--text-secondary);
+      color: var(--text-on-primary);
+      transform: translateY(-2px);
     }
+
+    .admin-link:active {
+      transform: scale(0.98);
+    }
+
+    .admin-link::before {
+      content: "👤";
+      font-size: 1.1em;
+    }
+
     .flashes {
       list-style: none;
       padding: 0;
       margin: 0 0 25px 0;
     }
+
     .flashes li {
       padding: 12px 15px;
       border-radius: 8px;
       margin-bottom: 10px;
       font-size: 0.95em;
     }
+
     .flashes li.success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
+      background-color: rgba(21, 87, 36, 0.1);
+      color: #2ecc71;
+      border: 1px solid rgba(46, 204, 113, 0.2);
     }
+
     .flashes li.error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+      background-color: rgba(114, 28, 36, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.2);
     }
+
     .divider {
       margin: 25px 0;
       text-align: center;
       position: relative;
     }
+
     .divider::before {
       content: "";
       position: absolute;
@@ -136,29 +225,50 @@
       left: 0;
       right: 0;
       height: 1px;
-      background-color: #e9ecef;
+      background-color: var(--border-color);
     }
+
     .divider span {
-      background-color: white;
+      background-color: var(--bg-card);
       padding: 0 15px;
-      color: #6c757d;
+      color: var(--text-secondary);
       position: relative;
       font-size: 0.9em;
     }
+
     .welcome-text {
       text-align: center;
       margin-bottom: 40px;
     }
+
     .welcome-text h1 {
-      color: #2c3e50;
+      color: var(--text-primary);
       font-size: 2.5em;
       font-weight: 600;
       margin: 0 0 10px 0;
     }
+
     .welcome-text p {
-      color: #6c757d;
+      color: var(--text-secondary);
       font-size: 1.1em;
       margin: 0;
+    }
+
+    @media (max-width: 480px) {
+      .form-container {
+        margin: 60px 20px;
+        padding: 25px;
+      }
+
+      .button-container {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .btn, .admin-link {
+        width: 100%;
+        justify-content: center;
+      }
     }
   </style>
 </head>
@@ -215,11 +325,16 @@
         >
       </div>
       <div class="button-container">
-        <a href="/admin/login" class="admin-link">Admin Login</a>
+        <a href="/admin/login" class="admin-link">Staff Portal</a>
         <a href="/register" class="btn btn-secondary">Register</a>
         <button type="submit" class="btn btn-primary">Login</button>
       </div>
     </form>
   </div>
+  <script>
+    // Get the theme from localStorage (set by index page)
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
 </body>
 </html>

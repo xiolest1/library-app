@@ -7,89 +7,160 @@
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
   <style>
+    :root {
+      --primary-color: #0077b6;
+      --primary-dark: #005f92;
+      --primary-soft: rgba(0, 119, 182, 0.1);
+      --text-primary: #2c3e50;
+      --text-secondary: #6c757d;
+      --text-on-primary: #ffffff;
+      --bg-main: #f8f9fa;
+      --bg-card: #ffffff;
+      --shadow-sm: 0 8px 20px rgba(0,0,0,0.1);
+      --shadow-lg: 0 16px 32px rgba(0,0,0,0.15);
+      --border-color: #e9ecef;
+    }
+
+    [data-theme="dark"] {
+      --primary-color: #3498db;
+      --primary-dark: #2980b9;
+      --primary-soft: rgba(52, 152, 219, 0.1);
+      --text-primary: #e9ecef;
+      --text-secondary: #adb5bd;
+      --text-on-primary: #ffffff;
+      --bg-main: #1a1a1a;
+      --bg-card: #2c3e50;
+      --shadow-sm: 0 8px 20px rgba(0,0,0,0.2);
+      --shadow-lg: 0 16px 32px rgba(0,0,0,0.3);
+      --border-color: #4a5568;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+    }
+
     .about-container {
       max-width: 1000px;
       margin: 100px auto 30px;
       padding: 0 20px;
     }
+
     .hero-section {
       text-align: center;
       margin-bottom: 60px;
     }
+
     .hero-section h1 {
       font-size: 2.5em;
-      color: #2c3e50;
+      color: var(--text-primary);
       margin-bottom: 20px;
     }
+
     .hero-section p {
       font-size: 1.2em;
-      color: #6c757d;
+      color: var(--text-secondary);
       max-width: 700px;
       margin: 0 auto;
       line-height: 1.6;
     }
+
     .features-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 30px;
       margin-bottom: 60px;
     }
+
     .feature-card {
-      background: white;
+      background: var(--bg-card);
       padding: 30px;
       border-radius: 15px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: transform 0.3s;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+
     .feature-card:hover {
       transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
     }
+
     .feature-icon {
       width: 50px;
       height: 50px;
-      background: #e3f2fd;
+      background: var(--primary-soft);
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 20px;
     }
+
     .feature-card h3 {
-      color: #2c3e50;
+      color: var(--text-primary);
       margin: 0 0 15px 0;
       font-size: 1.3em;
     }
+
     .feature-card p {
-      color: #6c757d;
+      color: var(--text-secondary);
       margin: 0;
       line-height: 1.6;
     }
+
     .contact-section {
-      background: white;
+      background: var(--bg-card);
       padding: 40px;
       border-radius: 15px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: var(--shadow-sm);
     }
+
     .contact-section h2 {
-      color: #2c3e50;
+      color: var(--text-primary);
       margin: 0 0 20px 0;
       text-align: center;
     }
+
     .contact-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 30px;
     }
+
     .contact-item {
       text-align: center;
     }
+
     .contact-item h4 {
-      color: #0077b6;
+      color: var(--primary-color);
       margin: 0 0 10px 0;
     }
+
     .contact-item p {
-      color: #6c757d;
+      color: var(--text-secondary);
       margin: 0;
+    }
+
+    @media (max-width: 768px) {
+      .about-container {
+        margin: 60px auto 30px;
+      }
+
+      .hero-section h1 {
+        font-size: 2em;
+      }
+
+      .hero-section p {
+        font-size: 1.1em;
+      }
+
+      .feature-card {
+        padding: 25px;
+      }
+
+      .contact-section {
+        padding: 30px;
+      }
     }
   </style>
 </head>
@@ -119,7 +190,7 @@
     <div class="features-grid">
       <div class="feature-card">
         <div class="feature-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#0077b6">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary-color)">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"/>
           </svg>
         </div>
@@ -129,7 +200,7 @@
 
       <div class="feature-card">
         <div class="feature-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#0077b6">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary-color)">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-4h2v2h-2zm1.61-9.96c-2.06-.3-3.88.97-4.43 2.79-.18.58.26 1.17.87 1.17h.2c.41 0 .74-.29.88-.67.32-.89 1.27-1.5 2.3-1.28.95.2 1.65 1.13 1.57 2.1-.1 1.34-1.62 1.63-2.45 2.88 0 .01-.01.01-.01.02-.01.02-.02.03-.03.05-.09.15-.18.32-.25.5-.01.03-.03.05-.04.08-.01.02-.01.04-.02.07-.12.34-.2.75-.2 1.25h2c0-.42.11-.77.28-1.07.02-.03.03-.06.05-.09.08-.14.18-.27.28-.39.01-.01.02-.03.03-.04.1-.12.21-.23.33-.34.96-.91 2.26-1.65 1.99-3.56-.24-1.74-1.61-3.21-3.35-3.47z"/>
           </svg>
         </div>
@@ -139,7 +210,7 @@
 
       <div class="feature-card">
         <div class="feature-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#0077b6">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary-color)">
             <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM17.99 9l-1.41-1.42-6.59 6.59-2.58-2.57-1.42 1.41 4 3.99z"/>
           </svg>
         </div>
@@ -166,5 +237,10 @@
       </div>
     </div>
   </div>
+  <script>
+    // Get the theme from localStorage (set by index page)
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
 </body>
 </html>
