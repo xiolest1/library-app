@@ -10,104 +10,429 @@ and a form to add the book to one of the user's custom lists.
   <title>{{ book.title }} - Library Search</title>
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    .author-add-container {
+    :root {
+      --primary-color: #0077b6;
+      --primary-dark: #005f92;
+      --accent-primary: #0077b6;
+      --accent-secondary: #023e8a;
+      --text-primary: #2c3e50;
+      --text-secondary: #6c757d;
+      --text-on-primary: #fff;
+      --bg-main: #f8f9fa;
+      --bg-card: #fff;
+      --bg-secondary: #f1f3f5;
+      --shadow-color: rgba(0,0,0,0.10);
+      --border-color: #e9ecef;
+      --badge-bg: #e3f2fd;
+      --badge-color: #0077b6;
+    }
+    [data-theme="dark"] {
+      --primary-color: #3498db;
+      --primary-dark: #2980b9;
+      --accent-primary: #3498db;
+      --accent-secondary: #2980b9;
+      --text-primary: #e9ecef;
+      --text-secondary: #adb5bd;
+      --text-on-primary: #fff;
+      --bg-main: #181a1b;
+      --bg-card: #23272b;
+      --bg-secondary: #23272b;
+      --shadow-color: rgba(0,0,0,0.25);
+      --border-color: #444b53;
+      --badge-bg: #22344a;
+      --badge-color: #90caf9;
+    }
+    body {
+      background: var(--bg-main);
+      color: var(--text-primary);
+      font-family: 'Poppins', sans-serif;
+    }
+    .book-hero {
       display: flex;
       flex-wrap: wrap;
-      gap: 20px;
-    }
-    .authors-container {
-      flex: 2;
-    }
-    .add-to-list-container {
-      flex: 1;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 15px;
-      height: fit-content;
-    }
-    .book-cover-large {
-      max-width: 300px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .book-description {
-      margin: 20px 0;
-      line-height: 1.6;
+      align-items: flex-end;
+      gap: 40px;
+      background: linear-gradient(120deg, var(--primary-color) 0%, var(--bg-main) 100%);
+      border-radius: 18px;
+      box-shadow: 0 6px 32px var(--shadow-color);
+      padding: 48px 40px 32px 40px;
+      margin-bottom: 40px;
       position: relative;
       overflow: hidden;
-      max-height: 100px; /* Show about 4-5 lines initially */
-      transition: max-height 0.3s ease;
+      animation: fadeIn 0.7s;
+    }
+    .book-hero-cover {
+      flex: 0 0 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+    .book-hero-cover img {
+      width: 220px;
+      height: 320px;
+      object-fit: cover;
+      border-radius: 14px;
+      box-shadow: 0 8px 32px var(--shadow-color);
+      background: var(--bg-secondary);
+      border: 2.5px solid var(--border-color);
+    }
+    .book-hero-info {
+      flex: 1 1 350px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      z-index: 2;
+    }
+    .book-hero-title {
+      font-size: 2.3rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0;
+      line-height: 1.2;
+    }
+    .book-hero-author {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .book-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .badge {
+      background: var(--badge-bg);
+      color: var(--badge-color);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 1rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 2px 8px var(--shadow-color);
+      border: none;
+    }
+    .book-hero-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 16px;
+    }
+    .book-hero-actions .btn {
+      background: var(--primary-color);
+      color: var(--text-on-primary);
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 2px 8px var(--shadow-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .book-hero-actions .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px) scale(1.03);
+    }
+    .book-main-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      align-items: flex-start;
+    }
+    .book-description-card {
+      background: var(--bg-card);
+      border-radius: 14px;
+      box-shadow: 0 2px 12px var(--shadow-color);
+      padding: 28px 28px 18px 28px;
+      flex: 2 1 400px;
+      margin-bottom: 24px;
+      animation: fadeInUp 0.7s;
+    }
+    .book-description-card h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--primary-color);
+    }
+    .book-description {
+      font-size: 1.08rem;
+      color: var(--text-primary);
+      line-height: 1.7;
+      margin-bottom: 0;
+      position: relative;
+      overflow: hidden;
+      max-height: 120px;
+      transition: max-height 0.3s;
     }
     .book-description.expanded {
       max-height: none;
     }
     .description-fade {
       position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 0; left: 0; right: 0;
       height: 60px;
-      background: linear-gradient(transparent, white);
+      background: linear-gradient(transparent, var(--bg-card));
       pointer-events: none;
     }
     .see-more-btn {
-      color: #0077b6;
+      color: var(--primary-color);
       cursor: pointer;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 500;
+      margin-top: 8px;
+      display: inline-block;
     }
-    .other-works-section {
-      margin-top: 20px;
+    .author-card-center-wrapper {
+      display: flex;
+      justify-content: center;
+      margin: 0 auto 32px auto;
+      width: 100%;
     }
-    .other-works-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 15px;
-      margin-top: 15px;
-    }
-    .work-card {
-      text-decoration: none;
-      color: inherit;
-      transition: transform 0.2s;
-    }
-    .work-card:hover {
-      transform: translateY(-5px);
-    }
-    .author-card {
-      background: #f1f3f5;
-      border-radius: 8px;
-      padding: 15px;
-      width: 200px;
+    .author-card-modern {
+      background: var(--bg-card);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px var(--shadow-color);
+      padding: 38px 32px 28px 32px;
+      width: 340px;
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
+      margin-bottom: 0;
+      position: relative;
+      border: 2.5px solid var(--primary-color);
+      transition: box-shadow 0.2s, transform 0.2s;
+      background: linear-gradient(135deg, var(--bg-card) 80%, var(--primary-color) 120%);
+    }
+    .author-card-modern:hover {
+      box-shadow: 0 8px 32px var(--shadow-color);
+      transform: translateY(-4px) scale(1.03);
     }
     .author-placeholder {
-      width: 100px;
-      height: 100px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #0077b6, #023e8a);
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 10px;
+      margin-bottom: 16px;
       color: white;
-      font-size: 2.5em;
-      font-weight: 300;
+      font-size: 3.2em;
+      font-weight: 400;
       line-height: 1;
       text-align: center;
-      padding-bottom: 2px;
+      box-shadow: 0 2px 12px var(--shadow-color);
+      border: 4px solid var(--bg-card);
     }
-    .author-card h3 {
-      width: 100%;
-      text-align: center;
+    .author-card-modern h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
       margin-bottom: 8px;
+      color: var(--primary-color);
+      letter-spacing: 0.5px;
     }
-    .author-card p {
+    .author-card-modern p {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      margin-bottom: 0;
+      margin-top: 6px;
+    }
+    .author-card-modern .author-bio {
+      margin-top: 10px;
+      font-size: 0.98rem;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+    .other-works-outer {
       width: 100%;
+      display: flex;
+      justify-content: center;
+      margin: 0 auto;
+      padding: 0 0 32px 0;
+    }
+    .other-works-section {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+      background: none;
+      padding: 0 10px;
+      margin-bottom: 20px;
+    }
+    .other-works-section h3 {
+      color: var(--primary-color);
+      font-size: 1.1rem;
+      margin-bottom: 16px;
       text-align: center;
+    }
+    .other-works-carousel {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      scroll-behavior: smooth;
+      justify-content: center;
+    }
+    .work-card-modern {
+      background: var(--bg-card);
+      border-radius: 10px;
+      box-shadow: 0 2px 8px var(--shadow-color);
+      min-width: 140px;
+      max-width: 160px;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      color: inherit;
+      flex: 0 0 140px;
+      padding: 8px 8px 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .work-card-modern:hover {
+      transform: translateY(-6px) scale(1.04);
+      box-shadow: 0 6px 24px var(--shadow-color);
+    }
+    .work-card-modern img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 7px;
+      margin-bottom: 6px;
+      background: var(--bg-secondary);
+    }
+    .work-card-modern-title {
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-top: 0;
+      line-height: 1.2;
+      max-height: 2.4em;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .add-to-list-floating {
+      position: sticky;
+      top: 110px;
+      align-self: flex-start;
+      background: var(--bg-card);
+      border-radius: 14px;
+      box-shadow: 0 2px 12px var(--shadow-color);
+      padding: 28px 22px 18px 22px;
+      min-width: 260px;
+      margin-bottom: 24px;
+      animation: fadeInUp 0.7s;
+    }
+    .add-to-list-floating h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--primary-color);
+    }
+    .add-to-list-floating label {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .add-to-list-floating select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 7px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 1rem;
+      margin-bottom: 10px;
+      transition: border 0.2s;
+    }
+    .add-to-list-floating select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+    .add-to-list-floating .btn {
+      background: var(--primary-color);
+      color: var(--text-on-primary);
+      border: none;
+      border-radius: 7px;
+      padding: 10px 20px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      transition: background 0.2s;
+      margin-top: 10px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .add-to-list-floating .btn:hover {
+      background: var(--primary-dark);
+    }
+    @media (max-width: 1100px) {
+      .book-hero {
+        flex-direction: column;
+        align-items: center;
+        padding: 32px 10vw 24px 10vw;
+      }
+      .book-main-content {
+        flex-direction: column;
+        gap: 24px;
+      }
+      .add-to-list-floating {
+        min-width: unset;
+        width: 100%;
+        position: static;
+      }
+      .author-card-modern {
+        width: 100%;
+        max-width: 340px;
+      }
+      .other-works-section {
+        max-width: 98vw;
+      }
+    }
+    @media (max-width: 600px) {
+      .book-hero {
+        padding: 18px 2vw 12px 2vw;
+        gap: 18px;
+      }
+      .book-hero-cover img {
+        width: 140px;
+        height: 200px;
+      }
+      .book-hero-title {
+        font-size: 1.3rem;
+      }
+      .book-description-card {
+        padding: 16px 8px 10px 8px;
+      }
+      .add-to-list-floating {
+        padding: 16px 8px 10px 8px;
+      }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -130,50 +455,67 @@ and a form to add the book to one of the user's custom lists.
     {% endif %}
   </nav>
 
-  <!-- Main book detail container-->
-  <div class="container book-detail" style="margin-top:90px;">
+  <div class="container book-detail" style="margin-top:90px; background:none; box-shadow:none; padding:0; max-width:none;">
     <div class="back-button" style="text-align:left; margin-bottom:20px;">
-      <a href="javascript:history.back()" class="btn">← Back to Results</a>
+      <a href="javascript:history.back()" class="btn"><i class="fas fa-arrow-left"></i> Back to Results</a>
     </div>
 
-    <!-- Book Header: cover + info -->
-    <div class="book-header" style="display:flex; gap:20px; margin-bottom:30px; flex-wrap:wrap;">
-      <div class="book-cover-container" style="text-align:center; flex:1 1 300px;">
+    <!-- Hero Header -->
+    <div class="book-hero">
+      <div class="book-hero-cover">
         {% if book.covers %}
-          <img src="https://covers.openlibrary.org/b/id/{{ book.covers[0] }}-L.jpg" alt="Book Cover" class="book-cover-large">
+          <img src="https://covers.openlibrary.org/b/id/{{ book.covers[0] }}-L.jpg" alt="Book Cover">
         {% else %}
-          <img src="https://via.placeholder.com/300x400?text=No+Cover" alt="No Cover" class="book-cover-large">
+          <img src="https://via.placeholder.com/300x400?text=No+Cover" alt="No Cover">
         {% endif %}
       </div>
-      <div class="book-info" style="flex:2 1 400px;">
-        <h1>{{ book.title }}</h1>
-        <p><strong>First Published:</strong> 
-          {% if book.first_publish_date != 'N/A' %}
-            {{ book.first_publish_date }}
-          {% else %}
-            Publication date unknown
+      <div class="book-hero-info">
+        <div class="book-hero-title">{{ book.title }}</div>
+        <div class="book-hero-author"><i class="fas fa-user"></i> {{ author.name if author else 'Unknown Author' }}</div>
+        <div class="book-badges">
+          {% if book.first_publish_date and book.first_publish_date != 'N/A' %}
+            <span class="badge"><i class="fas fa-calendar"></i> {{ book.first_publish_date }}</span>
           {% endif %}
-        </p>
-        
-        {% if book.description %}
-          <div class="book-description" id="description">
-            {{ book.description if book.description is string else book.description.value }}
-            <div class="description-fade" id="fade"></div>
-          </div>
-          <span class="see-more-btn" id="see-more">See more</span>
-        {% endif %}
+          {% if book.number_of_pages %}
+            <span class="badge"><i class="fas fa-book-open"></i> {{ book.number_of_pages }} pages</span>
+          {% endif %}
+          {% if book.edition_count %}
+            <span class="badge"><i class="fas fa-layer-group"></i> {{ book.edition_count }} editions</span>
+          {% endif %}
+          {% if book.ratings_average %}
+            <span class="badge"><i class="fas fa-star"></i> {{ '%.1f'|format(book.ratings_average) }}</span>
+          {% endif %}
+        </div>
+        <div class="book-hero-actions">
+          {% if session.get('user_id') and not session.get('is_admin') and user_lists %}
+            <a href="#add-to-list" class="btn"><i class="fas fa-plus"></i> Add to List</a>
+          {% endif %}
+        </div>
       </div>
     </div>
-    
-    <!-- Authors section -->
-    {% if author %}
-    <div class="author-add-container">
-      <div class="authors-container">
-        <h2>Author</h2>
-        <div class="authors" style="display:flex; flex-wrap:wrap; gap:20px;">
-          <div class="author-card">
+
+    <div class="book-main-content">
+      <div style="flex:2 1 400px; min-width:0;">
+        <!-- Description Card -->
+        <div class="book-description-card">
+          <h2>Description</h2>
+          {% if book.description %}
+            <div class="book-description" id="description">
+              {{ book.description if book.description is string else book.description.value }}
+              <div class="description-fade" id="fade"></div>
+            </div>
+            <span class="see-more-btn" id="see-more">See more</span>
+          {% else %}
+            <div class="book-description">No description available.</div>
+          {% endif %}
+        </div>
+
+        <!-- Centered Author Card -->
+        {% if author %}
+        <div class="author-card-center-wrapper">
+          <div class="author-card-modern">
             {% if author.photo %}
-              <img src="https://covers.openlibrary.org/a/id/{{ author.photo }}-M.jpg" alt="Author Photo" style="width:100px; height:100px; object-fit:cover; border-radius:50%; margin-bottom:10px;">
+              <img src="https://covers.openlibrary.org/a/id/{{ author.photo }}-M.jpg" alt="Author Photo" style="width:120px; height:120px; object-fit:cover; border-radius:50%; margin-bottom:16px; box-shadow:0 2px 12px var(--shadow-color); border:4px solid var(--bg-card);">
             {% else %}
               <div class="author-placeholder">
                 {{ author.name[0]|upper }}
@@ -181,41 +523,39 @@ and a form to add the book to one of the user's custom lists.
             {% endif %}
             <h3>{{ author.name }}</h3>
             {% if author.bio %}
-              <p style="font-size:0.9em; color:#555;">
+              <div class="author-bio">
                 {{ author.bio[:150] if author.bio is string else author.bio.value[:150] }}{% if author.bio|length > 150 %}...{% endif %}
-              </p>
+              </div>
             {% endif %}
           </div>
         </div>
+        {% endif %}
 
+        <!-- Centered, Max-Width Other Works -->
         {% if author_works %}
+        <div class="other-works-outer">
           <div class="other-works-section">
             <h3>Other Works by {{ author.name }}</h3>
-            <div class="other-works-grid">
+            <div class="other-works-carousel">
               {% for work in author_works %}
-                <a href="/book/works/{{ work.key }}" class="work-card">
-                  <div class="other-work-card" style="background:#f9f9f9; border-radius:5px; padding:10px; text-align:center; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-                    {% if work.cover_id %}
-                      <img src="https://covers.openlibrary.org/b/id/{{ work.cover_id }}-M.jpg" 
-                           alt="{{ work.title }}"
-                           style="width:100%; height:200px; object-fit:cover; border-radius:4px; margin-bottom:8px;">
-                    {% else %}
-                      <img src="https://via.placeholder.com/150x200?text=No+Cover" 
-                           alt="No Cover"
-                           style="width:100%; height:200px; object-fit:cover; border-radius:4px; margin-bottom:8px;">
-                    {% endif %}
-                    <div style="font-size:14px; font-weight:500; color:#333;">{{ work.title }}</div>
-                  </div>
+                <a href="/book/works/{{ work.key }}" class="work-card-modern">
+                  {% if work.cover_id %}
+                    <img src="https://covers.openlibrary.org/b/id/{{ work.cover_id }}-M.jpg" alt="{{ work.title }}">
+                  {% else %}
+                    <img src="https://via.placeholder.com/150x200?text=No+Cover" alt="No Cover">
+                  {% endif %}
+                  <div class="work-card-modern-title">{{ work.title }}</div>
                 </a>
               {% endfor %}
             </div>
           </div>
+        </div>
         {% endif %}
       </div>
 
-      <!-- Add to list form - Only show for logged-in regular users -->
+      <!-- Add to List Floating Card -->
       {% if session.get('user_id') and not session.get('is_admin') and user_lists %}
-      <div class="add-to-list-container">
+      <div class="add-to-list-floating" id="add-to-list">
         <h2>Add to List</h2>
         <form method="POST" action="/add_to_list">
           <input type="hidden" name="book_key" value="{{ book.key }}">
@@ -233,21 +573,34 @@ and a form to add the book to one of the user's custom lists.
               <option value="{{ lst.id }}">{{ lst.name }}</option>
             {% endfor %}
           </select>
-          <button type="submit" class="btn" style="margin-top:10px;">Add to List</button>
+          <button type="submit" class="btn"><i class="fas fa-plus"></i> Add to List</button>
         </form>
       </div>
       {% endif %}
     </div>
-    {% endif %}
   </div>
 
   <script>
+    // Theme sync with localStorage
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+
+      // Parse markdown links in description
+      const description = document.getElementById('description');
+      if (description) {
+        const text = description.innerHTML;
+        // Replace markdown links with actual HTML links
+        const formattedText = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color: var(--primary-color); text-decoration: underline;">$1</a>');
+        description.innerHTML = formattedText;
+      }
+    });
+
+    // Description expand/collapse
     const description = document.getElementById('description');
     const fade = document.getElementById('fade');
     const seeMoreBtn = document.getElementById('see-more');
-    
     if (description && seeMoreBtn) {
-      // Only show the see more button if content is truncated
       if (description.scrollHeight > description.offsetHeight) {
         seeMoreBtn.style.display = 'inline-block';
         fade.style.display = 'block';
@@ -255,7 +608,6 @@ and a form to add the book to one of the user's custom lists.
         seeMoreBtn.style.display = 'none';
         fade.style.display = 'none';
       }
-      
       seeMoreBtn.addEventListener('click', () => {
         if (description.classList.contains('expanded')) {
           description.classList.remove('expanded');
