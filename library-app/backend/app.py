@@ -29,7 +29,11 @@ db.init_app(app)
 def current_user():
     """Return the logged-in User object, or None."""
     if 'user_id' in session:
-        return User.query.get(session['user_id'])
+        user = User.query.get(session['user_id'])
+        if user is None:
+            # If user doesn't exist anymore, clear the session
+            session.clear()
+        return user
     return None
 
 def login_required(f):
@@ -355,17 +359,39 @@ def user_dashboard():  # Regular user dashboard
 @app.route('/lists/create', methods=['POST'])
 @login_required
 def create_list():
+    # First verify we have an active session and valid user
+    if 'user_id' not in session:
+        flash('Please log in to create a list.', 'error')
+        return redirect(url_for('login'))
+    
+    # Verify user exists in database
+    user = User.query.get(session['user_id'])
+    if user is None:
+        # Clear invalid session and redirect to login
+        session.clear()
+        flash('Your session has expired. Please log in again.', 'error')
+        return redirect(url_for('login'))
+    
     name = request.form.get('list_name','').strip()
     if not name:
         flash('List name required.', 'error')
         return redirect(url_for('user_dashboard', tab='create-list'))
 
-    new_list = List(name=name, user_id=current_user().id)
-    db.session.add(new_list)
-    db.session.commit()
-
-    flash(f"List '{name}' created!", 'success')
-    return redirect(url_for('user_dashboard', tab='custom-lists'))  # Show in the lists tab after creation
+    try:
+        new_list = List(name=name, user_id=user.id)
+        db.session.add(new_list)
+        db.session.commit()
+        flash(f"List '{name}' created!", 'success')
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error creating list: {str(e)}")
+        if 'violates foreign key constraint' in str(e):
+            session.clear()
+            flash('Your session has expired. Please log in again.', 'error')
+            return redirect(url_for('login'))
+        flash('Error creating list. Please try again.', 'error')
+    
+    return redirect(url_for('user_dashboard', tab='custom-lists'))
 
 
 # RENAME A LIST
@@ -452,7 +478,9 @@ def add_to_list():
     db.session.commit()
 
     flash(f"'{title}' added to '{the_list.name}'!", 'success')
-    return redirect(url_for('book_detail', work_key=book_key))
+    # Extract the work key from the book_key and redirect back to book detail
+    work_key = book_key.split('/')[-1] if book_key else ''
+    return redirect(url_for('book_detail', work_key=work_key))
 
 
 # ------------------------------
@@ -747,6 +775,15 @@ def update_profile():
 ###############################################################################
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Create all tables
-        User.create_default_users()  # Create default admin and librarian users
+        # Create tables if they don't exist
+        db.create_all()
+        
+        # Create default users if they don't exist
+        User.create_default_users()
+        
+        print("Database initialized successfully!")
+        print(" - Ensuring tables exist: users, books, lists, list_items")
+        print(" - Default admin user available (username: admin, password: password123)")
+        print(" - Default librarian available (username: librarian, password: password123)")
+    
     app.run(host='0.0.0.0', port=5000)

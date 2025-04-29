@@ -632,7 +632,13 @@ Shows basic user info, plus a section for custom lists
                   <div class="stat-label">Lists</div>
                 </div>
                 <div class="stat-item">
-                  <div class="stat-value">{{ lists|sum(attribute='items|length') }}</div>
+                  <div class="stat-value">
+                    {% set total_books = 0 %}
+                    {% for list in lists %}
+                      {% set total_books = total_books + list.items|length %}
+                    {% endfor %}
+                    {{ total_books }}
+                  </div>
                   <div class="stat-label">Books</div>
                 </div>
               </div>

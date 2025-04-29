@@ -121,29 +121,6 @@ and a form to add the book to one of the user's custom lists.
       box-shadow: 0 2px 8px var(--shadow-color);
       border: none;
     }
-    .book-hero-actions {
-      margin-top: 10px;
-      display: flex;
-      gap: 16px;
-    }
-    .book-hero-actions .btn {
-      background: var(--primary-color);
-      color: var(--text-on-primary);
-      border: none;
-      border-radius: 8px;
-      padding: 10px 22px;
-      font-weight: 600;
-      font-size: 1.1rem;
-      transition: background 0.2s, transform 0.2s;
-      box-shadow: 0 2px 8px var(--shadow-color);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .book-hero-actions .btn:hover {
-      background: var(--primary-dark);
-      transform: translateY(-2px) scale(1.03);
-    }
     .book-main-content {
       display: flex;
       flex-wrap: wrap;
@@ -174,9 +151,29 @@ and a form to add the book to one of the user's custom lists.
       overflow: hidden;
       max-height: 120px;
       transition: max-height 0.3s;
+      white-space: pre-line;
     }
     .book-description.expanded {
       max-height: none;
+    }
+    .book-description.formatted-content {
+      white-space: normal;
+    }
+    .book-description .content-item {
+      display: block;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .book-description .content-item:last-child {
+      border-bottom: none;
+    }
+    .book-description .content-title {
+      font-weight: 500;
+      color: var(--primary-color);
+    }
+    .book-description .content-meta {
+      font-size: 0.9em;
+      color: var(--text-secondary);
     }
     .description-fade {
       position: absolute;
@@ -460,6 +457,20 @@ and a form to add the book to one of the user's custom lists.
       <a href="javascript:history.back()" class="btn"><i class="fas fa-arrow-left"></i> Back to Results</a>
     </div>
 
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages" style="margin-bottom: 20px;">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}" style="padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; animation: fadeIn 0.5s; background: {{ 'rgba(46, 204, 113, 0.1)' if category == 'success' else 'rgba(231, 76, 60, 0.1)' }}; color: {{ '#2ecc71' if category == 'success' else '#e74c3c' }}; border: 1px solid {{ 'rgba(46, 204, 113, 0.2)' if category == 'success' else 'rgba(231, 76, 60, 0.2)' }};">
+              <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}" style="margin-right: 8px;"></i>
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
     <!-- Hero Header -->
     <div class="book-hero">
       <div class="book-hero-cover">
@@ -484,11 +495,6 @@ and a form to add the book to one of the user's custom lists.
           {% endif %}
           {% if book.ratings_average %}
             <span class="badge"><i class="fas fa-star"></i> {{ '%.1f'|format(book.ratings_average) }}</span>
-          {% endif %}
-        </div>
-        <div class="book-hero-actions">
-          {% if session.get('user_id') and not session.get('is_admin') and user_lists %}
-            <a href="#add-to-list" class="btn"><i class="fas fa-plus"></i> Add to List</a>
           {% endif %}
         </div>
       </div>
@@ -586,12 +592,46 @@ and a form to add the book to one of the user's custom lists.
       const savedTheme = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
 
-      // Parse markdown links in description
+      // Format description content
       const description = document.getElementById('description');
       if (description) {
         const text = description.innerHTML;
-        // Replace markdown links with actual HTML links
-        const formattedText = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color: var(--primary-color); text-decoration: underline;">$1</a>');
+        
+        // Check if this looks like a table of contents
+        // Indicators: Many bullet points, dates in parentheses, and words like "essay", "short story", "poem"
+        const hasMultipleBullets = (text.match(/•/g) || []).length > 5;
+        const hasMultipleDates = (text.match(/\([0-9]{4}\)/g) || []).length > 3;
+        const hasContentTypes = /(essay|short story|poem|novelette)/i.test(text);
+        
+        if (hasMultipleBullets && hasMultipleDates && hasContentTypes) {
+          // This is likely a table of contents, not a description
+          description.innerHTML = `
+            <p style="color: var(--text-secondary);">
+              This appears to be a table of contents rather than a book description. 
+              Please check the book details on 
+              <a href="https://openlibrary.org" 
+                 target="_blank" 
+                 style="color: var(--primary-color); text-decoration: underline;">
+                OpenLibrary
+              </a> 
+              for more information about this book.
+            </p>
+          `;
+          
+          // Hide the see more/less button since we don't need it
+          const seeMoreBtn = document.getElementById('see-more');
+          const fade = document.getElementById('fade');
+          if (seeMoreBtn) seeMoreBtn.style.display = 'none';
+          if (fade) fade.style.display = 'none';
+          
+          return;
+        }
+
+        // If it's a regular description, parse markdown links
+        const formattedText = text.replace(
+          /\[([^\]]+)\]\(([^)]+)\)/g, 
+          '<a href="$2" target="_blank" style="color: var(--primary-color); text-decoration: underline;">$1</a>'
+        );
         description.innerHTML = formattedText;
       }
     });
@@ -612,12 +652,12 @@ and a form to add the book to one of the user's custom lists.
         if (description.classList.contains('expanded')) {
           description.classList.remove('expanded');
           fade.style.display = 'block';
-          seeMoreBtn.textContent = 'See more';
+          seeMoreBtn.textContent = 'See less';
           description.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
           description.classList.add('expanded');
           fade.style.display = 'none';
-          seeMoreBtn.textContent = 'See less';
+          seeMoreBtn.textContent = 'See more';
         }
       });
     }
