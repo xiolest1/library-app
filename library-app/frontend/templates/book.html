@@ -431,6 +431,30 @@ and a form to add the book to one of the user's custom lists.
       from { opacity: 0; transform: translateY(40px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    /* Flash Message Styles */
+    .flash-messages {
+      margin-bottom: 20px;
+    }
+    .flash-message {
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      animation: fadeIn 0.5s;
+    }
+    .flash-message.success {
+      background: rgba(46, 204, 113, 0.1);
+      color: #2ecc71;
+      border: 1px solid rgba(46, 204, 113, 0.2);
+    }
+    .flash-message.error {
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+    .flash-message i {
+      margin-right: 8px;
+    }
   </style>
 </head>
 <body>
@@ -460,10 +484,10 @@ and a form to add the book to one of the user's custom lists.
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="flash-messages" style="margin-bottom: 20px;">
+        <div class="flash-messages">
           {% for category, message in messages %}
-            <div class="flash-message {{ category }}" style="padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; animation: fadeIn 0.5s; background: {{ 'rgba(46, 204, 113, 0.1)' if category == 'success' else 'rgba(231, 76, 60, 0.1)' }}; color: {{ '#2ecc71' if category == 'success' else '#e74c3c' }}; border: 1px solid {{ 'rgba(46, 204, 113, 0.2)' if category == 'success' else 'rgba(231, 76, 60, 0.2)' }};">
-              <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}" style="margin-right: 8px;"></i>
+            <div class="flash-message {{ category }}">
+              <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
               {{ message }}
             </div>
           {% endfor %}

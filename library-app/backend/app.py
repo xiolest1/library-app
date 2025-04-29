@@ -340,19 +340,20 @@ def search():
 @app.route('/dashboard')
 @login_required
 def user_dashboard():  # Regular user dashboard
-    if session.get('is_admin'):
+    user = User.query.get(session['user_id'])
+    
+    # Redirect admin/librarian to admin dashboard
+    if user.role in ['admin', 'librarian']:
         return redirect(url_for('admin_dashboard'))
     
-    user = User.query.get(session['user_id'])
+    # For regular users, show their dashboard
     user_lists = List.query.filter_by(user_id=session['user_id']).all()
-    
-    # Get the active tab from query parameter
     active_tab = request.args.get('tab', 'overview')
     
     return render_template('dashboard.html', 
-                          user=user, 
-                          lists=user_lists, 
-                          active_tab=active_tab)
+                         user=user, 
+                         lists=user_lists, 
+                         active_tab=active_tab)
 
 
 # CREATE A NEW LIST
@@ -577,21 +578,42 @@ def admin_users():
 
 @app.route('/admin/books/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
-@role_required('admin')
+@role_required('admin', 'librarian')
 def admin_edit_book(id):
     book = Book.query.get_or_404(id)
     if request.method == 'POST':
         book.title = request.form.get('title', '').strip()
         book.author = request.form.get('author', '').strip()
         book.isbn = request.form.get('isbn', '').strip()
+        book.description = request.form.get('description', '').strip()
+        book.publication_year = request.form.get('publication_year')
+        book.genre = request.form.get('genre', '').strip()
+        book.language = request.form.get('language', '').strip()
+        book.publisher = request.form.get('publisher', '').strip()
+        book.page_count = request.form.get('page_count')
+        
+        # Convert numeric fields
+        try:
+            book.publication_year = int(book.publication_year) if book.publication_year else None
+            book.page_count = int(book.page_count) if book.page_count else None
+        except ValueError:
+            flash('Invalid year or page count format.', 'error')
+            return render_template('admin/admin_edit_book.html', book=book)
         
         if not book.title or not book.author:
             flash('Title and author are required.', 'error')
             return render_template('admin/admin_edit_book.html', book=book)
         
-        db.session.commit()
-        flash('Book updated successfully.', 'success')
-        return redirect(url_for('admin_books'))
+        try:
+            db.session.commit()
+            flash('Book updated successfully.', 'success')
+            return redirect(url_for('admin_books'))
+        except Exception as e:
+            db.session.rollback()
+            flash('Error updating book. Please try again.', 'error')
+            app.logger.error(f'Error updating book: {str(e)}')
+            return render_template('admin/admin_edit_book.html', book=book)
+            
     return render_template('admin/admin_edit_book.html', book=book)
 
 @app.route('/admin/users/edit/<int:id>', methods=['GET', 'POST'])
@@ -621,31 +643,57 @@ def admin_edit_user(id):
 
 @app.route('/admin/books/add', methods=['POST'])
 @login_required
-@role_required('admin')
+@role_required('admin', 'librarian')
 def add_book():
     title = request.form.get('title', '').strip()
     author = request.form.get('author', '').strip()
     isbn = request.form.get('isbn', '').strip()
+    description = request.form.get('description', '').strip()
+    publication_year = request.form.get('publication_year')
+    genre = request.form.get('genre', '').strip()
+    language = request.form.get('language', '').strip()
+    publisher = request.form.get('publisher', '').strip()
+    page_count = request.form.get('page_count')
     
     if not title or not author:
         flash('Title and author are required.', 'error')
+        return redirect(url_for('admin_books'))
+    
+    # Convert publication_year and page_count to integers if provided
+    try:
+        publication_year = int(publication_year) if publication_year else None
+        page_count = int(page_count) if page_count else None
+    except ValueError:
+        flash('Invalid year or page count format.', 'error')
         return redirect(url_for('admin_books'))
     
     new_book = Book(
         title=title,
         author=author,
         isbn=isbn,
+        description=description,
+        publication_year=publication_year,
+        genre=genre,
+        language=language,
+        publisher=publisher,
+        page_count=page_count,
         added_by_id=current_user().id
     )
-    db.session.add(new_book)
-    db.session.commit()
     
-    flash('Book added successfully.', 'success')
+    try:
+        db.session.add(new_book)
+        db.session.commit()
+        flash('Book added successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error adding book. Please try again.', 'error')
+        app.logger.error(f'Error adding book: {str(e)}')
+    
     return redirect(url_for('admin_books'))
 
 @app.route('/admin/books/delete/<int:book_id>', methods=['POST'])
 @login_required
-@role_required('admin')
+@role_required('admin', 'librarian')
 def delete_book(book_id):
     book = Book.query.get_or_404(book_id)
     db.session.delete(book)
@@ -769,6 +817,60 @@ def update_profile():
     db.session.commit()
     flash('Your profile has been updated.', 'success')
     return redirect(url_for('user_dashboard', tab='overview'))
+
+@app.route('/admin/users/create', methods=['POST'])
+@login_required
+@role_required('admin')
+def admin_create_user():
+    username = request.form.get('username')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+    role = request.form.get('role')
+
+    # Validate all fields are present
+    if not all([username, email, password, confirm_password, role]):
+        flash('All fields are required', 'error')
+        return redirect(url_for('admin_users'))
+
+    # Validate passwords match
+    if password != confirm_password:
+        flash('Passwords do not match', 'error')
+        return redirect(url_for('admin_users'))
+
+    # Check if username already exists
+    if User.query.filter_by(username=username).first():
+        flash('Username already exists', 'error')
+        return redirect(url_for('admin_users'))
+
+    # Check if email already exists
+    if User.query.filter_by(email=email).first():
+        flash('Email already exists', 'error')
+        return redirect(url_for('admin_users'))
+
+    # Validate role is one of the allowed values
+    if role not in ['user', 'admin', 'librarian']:
+        flash('Invalid role selected', 'error')
+        return redirect(url_for('admin_users'))
+
+    # Create new user
+    new_user = User(
+        username=username,
+        email=email,
+        role=role
+    )
+    new_user.set_password(password)
+
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        flash('User created successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error creating user', 'error')
+        app.logger.error(f'Error creating user: {str(e)}')
+
+    return redirect(url_for('admin_users'))
 
 ###############################################################################
 # MAIN

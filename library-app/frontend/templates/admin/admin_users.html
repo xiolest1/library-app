@@ -6,6 +6,7 @@
   <title>User Management - Admin Dashboard</title>
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --primary-color: #0077b6;
@@ -45,86 +46,190 @@
       margin: 100px auto 30px;
       padding: 20px;
     }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 30px;
+      align-items: start;
+    }
+
     .admin-section {
       background: var(--bg-card);
-      padding: 20px;
-      border-radius: 8px;
+      padding: 30px;
+      border-radius: 16px;
       box-shadow: var(--shadow-sm);
       margin-bottom: 20px;
+      animation: fadeIn 0.5s ease-out;
     }
+
+    .create-user-section {
+      position: sticky;
+      top: 100px;
+    }
+
+    .section-header {
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .section-header i {
+      font-size: 24px;
+      color: var(--primary-color);
+      background: var(--primary-soft);
+      padding: 12px;
+      border-radius: 12px;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
     .users-table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       margin-top: 20px;
       background: var(--bg-card);
-      border-radius: 8px;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: var(--shadow-sm);
     }
+
     .users-table th,
     .users-table td {
-      padding: 12px 15px;
+      padding: 16px;
       text-align: left;
       border-bottom: 1px solid var(--border-color);
     }
+
     .users-table th {
       background-color: var(--bg-main);
       font-weight: 600;
       color: var(--text-primary);
     }
+
     .users-table tr:hover {
       background-color: var(--primary-soft);
     }
+
+    .users-table tr:last-child td {
+      border-bottom: none;
+    }
+
     .action-buttons {
       display: flex;
       gap: 8px;
     }
+
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn i {
+      font-size: 1.1rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: var(--text-on-primary);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
     .btn-delete {
       background-color: #e53e3e;
       color: white;
-      padding: 6px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.2s;
+      padding: 8px 16px;
+      font-size: 0.9rem;
     }
+
     .btn-delete:hover {
       background-color: #c53030;
     }
+
     .btn-edit {
       background-color: var(--primary-color);
       color: white;
-      padding: 6px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      text-decoration: none;
-      transition: background-color 0.2s;
+      padding: 8px 16px;
+      font-size: 0.9rem;
     }
+
     .btn-edit:hover {
       background-color: var(--primary-dark);
     }
+
     .flash-messages {
       margin-bottom: 20px;
     }
+
     .flash-message {
-      padding: 12px 15px;
-      border-radius: 4px;
+      padding: 12px 16px;
+      border-radius: 8px;
       margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
+
     .flash-success {
-      background-color: #c6f6d5;
-      color: #2f855a;
-      border: 1px solid #9ae6b4;
+      background-color: rgba(46, 204, 113, 0.1);
+      color: #2ecc71;
+      border: 1px solid rgba(46, 204, 113, 0.2);
     }
+
     .flash-error {
-      background-color: #fed7d7;
-      color: #c53030;
-      border: 1px solid #feb2b2;
+      background-color: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.2);
     }
-    /* Modal styles */
+
     .modal {
       display: none;
       position: fixed;
@@ -135,25 +240,38 @@
       background-color: rgba(0,0,0,0.5);
       z-index: 1000;
     }
+
     .modal-content {
       position: relative;
-      background-color: white;
+      background-color: var(--bg-card);
       margin: 15% auto;
-      padding: 20px;
+      padding: 30px;
       width: 90%;
       max-width: 500px;
-      border-radius: 8px;
+      border-radius: 16px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
+
     .modal-actions {
       display: flex;
       justify-content: flex-end;
       gap: 10px;
       margin-top: 20px;
     }
-    .btn-cancel {
-      background-color: #e2e8f0;
-      color: #4a5568;
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1024px) {
+      .admin-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .create-user-section {
+        position: static;
+      }
     }
   </style>
 </head>
@@ -167,46 +285,98 @@
   </nav>
 
   <div class="admin-container">
-    <div class="admin-section">
-      <h1>User Management</h1>
-      
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <div class="flash-messages">
-            {% for category, message in messages %}
-              <div class="flash-message flash-{{ category }}">{{ message }}</div>
-            {% endfor %}
+    <div class="admin-grid">
+      <!-- Create User Section -->
+      <div class="admin-section create-user-section">
+        <div class="section-header">
+          <i class="fas fa-user-plus"></i>
+          <h2>Create New User</h2>
+        </div>
+        
+        <form method="POST" action="/admin/users/create">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required placeholder="Enter username">
           </div>
-        {% endif %}
-      {% endwith %}
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required placeholder="Enter email">
+          </div>
+          <div class="form-group">
+            <label for="role">Role</label>
+            <select id="role" name="role" required>
+              <option value="user">User</option>
+              <option value="librarian">Librarian</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="Enter password">
+          </div>
+          <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm password">
+          </div>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Create User
+          </button>
+        </form>
+      </div>
 
-      <table class="users-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for user in users %}
+      <!-- Users List Section -->
+      <div class="admin-section">
+        <div class="section-header">
+          <i class="fas fa-users"></i>
+          <h2>User Management</h2>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">
+                  <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <table class="users-table">
+          <thead>
             <tr>
-              <td>{{ user.id }}</td>
-              <td>{{ user.username }}</td>
-              <td>{{ user.email }}</td>
-              <td>{{ 'Admin' if user.is_admin else 'User' }}</td>
-              <td class="action-buttons">
-                <a href="{{ url_for('admin_edit_user', id=user.id) }}" class="btn-edit">Edit</a>
-                {% if user.id != session['user_id'] %}
-                  <button onclick="showDeleteModal({{ user.id }}, '{{ user.username }}')" class="btn-delete">Delete</button>
-                {% endif %}
-              </td>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Actions</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for user in users %}
+              <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role|title }}</td>
+                <td class="action-buttons">
+                  <a href="{{ url_for('admin_edit_user', id=user.id) }}" class="btn btn-edit">
+                    <i class="fas fa-edit"></i> Edit
+                  </a>
+                  {% if user.id != session['user_id'] %}
+                    <button onclick="showDeleteModal({{ user.id }}, '{{ user.username }}')" class="btn btn-delete">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -217,7 +387,7 @@
       <p>Are you sure you want to delete user <span id="deleteUserName"></span>?</p>
       <p>This action cannot be undone.</p>
       <div class="modal-actions">
-        <button onclick="hideDeleteModal()" class="btn btn-cancel">Cancel</button>
+        <button onclick="hideDeleteModal()" class="btn btn-secondary">Cancel</button>
         <form id="deleteForm" method="POST" style="display: inline;">
           <button type="submit" class="btn btn-delete">Delete</button>
         </form>

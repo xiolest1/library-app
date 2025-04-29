@@ -146,6 +146,7 @@
           <label for="role">Role:</label>
           <select id="role" name="role" required>
             <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+            <option value="librarian" {% if user.role == 'librarian' %}selected{% endif %}>Librarian</option>
             <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
           </select>
         </div>

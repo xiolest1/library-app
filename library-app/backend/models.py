@@ -77,6 +77,12 @@ class Book(db.Model):
     title = db.Column(db.String(200), nullable=False)
     author = db.Column(db.String(200), nullable=False)
     isbn = db.Column(db.String(13))
+    description = db.Column(db.Text)
+    publication_year = db.Column(db.Integer)
+    genre = db.Column(db.String(50))
+    language = db.Column(db.String(20))
+    publisher = db.Column(db.String(200))
+    page_count = db.Column(db.Integer)
     added_by_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

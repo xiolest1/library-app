@@ -5,108 +5,171 @@
   <title>Edit Book - Admin Dashboard</title>
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --primary-color: #0077b6;
-      --primary-dark: #005f92;
-      --primary-soft: rgba(0, 119, 182, 0.1);
-      --text-primary: #2c3e50;
-      --text-secondary: #6c757d;
-      --text-on-primary: #ffffff;
-      --bg-main: #f8f9fa;
-      --bg-card: #ffffff;
-      --shadow-sm: 0 8px 20px rgba(0,0,0,0.1);
-      --shadow-lg: 0 16px 32px rgba(0,0,0,0.15);
-      --border-color: #e9ecef;
-    }
-
-    [data-theme="dark"] {
-      --primary-color: #3498db;
-      --primary-dark: #2980b9;
-      --primary-soft: rgba(52, 152, 219, 0.1);
-      --text-primary: #e9ecef;
-      --text-secondary: #adb5bd;
-      --text-on-primary: #ffffff;
-      --bg-main: #1a1a1a;
-      --bg-card: #2c3e50;
-      --shadow-sm: 0 8px 20px rgba(0,0,0,0.2);
-      --shadow-lg: 0 16px 32px rgba(0,0,0,0.3);
-      --border-color: #4a5568;
+      --bg-dark: #2d3b4e;
+      --text-light: #e2e8f0;
+      --text-lighter: #f7fafc;
+      --text-dim: #94a3b8;
+      --primary-blue: #00a8ff;
+      --input-bg: rgba(255, 255, 255, 0.05);
+      --input-border: rgba(255, 255, 255, 0.1);
     }
 
     body {
-      background-color: var(--bg-main);
-      color: var(--text-primary);
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      margin: 0;
     }
 
-    .admin-container {
+    .edit-container {
       max-width: 800px;
-      margin: 100px auto 30px;
-      padding: 20px;
-    }
-    .admin-section {
-      background: var(--bg-card);
-      padding: 20px;
+      margin: 80px auto;
+      padding: 30px;
+      background: rgba(0, 0, 0, 0.2);
       border-radius: 8px;
-      box-shadow: var(--shadow-sm);
     }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-lighter);
+      margin-bottom: 30px;
+      font-size: 1.5rem;
+    }
+
+    .section-title i {
+      color: var(--primary-blue);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 15px 20px;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
     .form-group {
-      margin-bottom: 15px;
+      display: contents;
     }
+
     .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 600;
-      color: var(--text-primary);
+      color: var(--text-light);
+      font-size: 0.95rem;
+      font-weight: 400;
     }
-    .form-group input {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid var(--border-color);
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
       border-radius: 4px;
-      font-size: 1em;
-      background-color: var(--bg-card);
-      color: var(--text-primary);
+      padding: 8px 12px;
+      color: var(--text-light);
+      font-size: 0.95rem;
+      width: 100%;
+      transition: all 0.2s ease;
     }
-    .button-container {
-      margin-top: 20px;
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+    }
+
+    .form-group input::placeholder,
+    .form-group select::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--text-dim);
+    }
+
+    .form-group select {
+      background: var(--bg-dark);
+      cursor: pointer;
+    }
+
+    .form-group select option {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      padding: 8px;
+    }
+
+    .form-full-width {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .button-group {
       display: flex;
       gap: 10px;
+      margin-top: 20px;
     }
+
     .btn {
-      padding: 8px 16px;
+      padding: 8px 20px;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 1em;
+      font-size: 0.95rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       text-decoration: none;
-      color: var(--text-on-primary);
+      transition: all 0.2s ease;
     }
+
     .btn-primary {
-      background-color: var(--primary-color);
+      background: var(--primary-blue);
+      color: white;
     }
+
     .btn-secondary {
-      background-color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-light);
     }
-    .flashes {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 20px 0;
+
+    .btn:hover {
+      opacity: 0.9;
     }
-    .flashes li {
-      padding: 10px;
-      border-radius: 4px;
-      margin-bottom: 10px;
-    }
-    .flashes li.success {
-      background-color: rgba(21, 87, 36, 0.1);
-      color: #2ecc71;
-      border: 1px solid rgba(46, 204, 113, 0.2);
-    }
-    .flashes li.error {
-      background-color: rgba(114, 28, 36, 0.1);
-      color: #e74c3c;
-      border: 1px solid rgba(231, 76, 60, 0.2);
+
+    @media (max-width: 768px) {
+      .edit-container {
+        margin: 20px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .form-group {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 5px;
+      }
+
+      .form-full-width {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -119,39 +182,91 @@
     <a href="/logout" class="banner-item">Logout</a>
   </nav>
 
-  <div class="admin-container">
-    <div class="admin-section">
-      <h1>Edit Book</h1>
-      
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <ul class="flashes">
-            {% for category, message in messages %}
-              <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
+  <div class="edit-container">
+    <div class="section-title">
+      <i class="fas fa-edit"></i>
+      <h2>Edit Book</h2>
+    </div>
 
-      <form method="POST">
+    <form method="POST">
+      <div class="form-grid">
         <div class="form-group">
-          <label for="title">Title:</label>
+          <label for="title">Title</label>
           <input type="text" id="title" name="title" value="{{ book.title }}" required>
         </div>
+        
         <div class="form-group">
-          <label for="author">Author:</label>
+          <label for="author">Author</label>
           <input type="text" id="author" name="author" value="{{ book.author }}" required>
         </div>
+
         <div class="form-group">
-          <label for="isbn">ISBN:</label>
+          <label for="isbn">ISBN</label>
           <input type="text" id="isbn" name="isbn" value="{{ book.isbn }}">
         </div>
-        <div class="button-container">
-          <a href="/admin/books" class="btn btn-secondary">Cancel</a>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
+
+        <div class="form-group">
+          <label for="publication_year">Publication Year</label>
+          <input type="number" id="publication_year" name="publication_year" value="{{ book.publication_year }}">
         </div>
-      </form>
-    </div>
+
+        <div class="form-group">
+          <label for="genre">Genre</label>
+          <select id="genre" name="genre">
+            <option value="">Select a genre</option>
+            <option value="fiction" {% if book.genre == 'fiction' %}selected{% endif %}>Fiction</option>
+            <option value="non-fiction" {% if book.genre == 'non-fiction' %}selected{% endif %}>Non-Fiction</option>
+            <option value="mystery" {% if book.genre == 'mystery' %}selected{% endif %}>Mystery</option>
+            <option value="science-fiction" {% if book.genre == 'science-fiction' %}selected{% endif %}>Science Fiction</option>
+            <option value="fantasy" {% if book.genre == 'fantasy' %}selected{% endif %}>Fantasy</option>
+            <option value="romance" {% if book.genre == 'romance' %}selected{% endif %}>Romance</option>
+            <option value="thriller" {% if book.genre == 'thriller' %}selected{% endif %}>Thriller</option>
+            <option value="horror" {% if book.genre == 'horror' %}selected{% endif %}>Horror</option>
+            <option value="biography" {% if book.genre == 'biography' %}selected{% endif %}>Biography</option>
+            <option value="history" {% if book.genre == 'history' %}selected{% endif %}>History</option>
+            <option value="science" {% if book.genre == 'science' %}selected{% endif %}>Science</option>
+            <option value="technology" {% if book.genre == 'technology' %}selected{% endif %}>Technology</option>
+            <option value="other" {% if book.genre == 'other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="language">Language</label>
+          <select id="language" name="language">
+            <option value="">Select a language</option>
+            <option value="en" {% if book.language == 'en' %}selected{% endif %}>English</option>
+            <option value="es" {% if book.language == 'es' %}selected{% endif %}>Spanish</option>
+            <option value="fr" {% if book.language == 'fr' %}selected{% endif %}>French</option>
+            <option value="de" {% if book.language == 'de' %}selected{% endif %}>German</option>
+            <option value="it" {% if book.language == 'it' %}selected{% endif %}>Italian</option>
+            <option value="other" {% if book.language == 'other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+
+        <div class="form-group form-full-width">
+          <label for="description">Description</label>
+          <textarea id="description" name="description">{{ book.description }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="publisher">Publisher</label>
+          <input type="text" id="publisher" name="publisher" value="{{ book.publisher }}">
+        </div>
+
+        <div class="form-group">
+          <label for="page_count">Page Count</label>
+          <input type="number" id="page_count" name="page_count" value="{{ book.page_count }}">
+        </div>
+      </div>
+
+      <div class="button-group">
+        <a href="/admin/books" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i>
+          Save Changes
+        </button>
+      </div>
+    </form>
   </div>
   <script>
     // Get the theme from localStorage (set by index page)
